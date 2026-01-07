@@ -1,0 +1,3264 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Activity, Heart, Brain, Wind, Zap, CheckCircle, XCircle, 
+  AlertTriangle, ChevronRight, RefreshCw, BarChart2, Home,
+  Stethoscope, Ambulance, ShieldAlert, BookOpen, Layers
+} from 'lucide-react';
+
+// --- QUESTION BANK (FIXED & FLATTENED) ---
+const QUESTION_BANK = [
+  // ==========================================
+  // === ANATOMY MODULE ===
+  // ==========================================
+  {
+    "id": "ANAT-001",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A pediatric patient presents with a systolic blood pressure of 100 mmHg. Based on the standard formula for estimating pediatric blood pressure (90 + 2 x age), what is the approximate age of this child?",
+    "options": ["3 years old", "5 years old", "7 years old", "10 years old"],
+    "correctAnswer": "5 years old",
+    "explanation": "Using the formula 90 + (2 * age) = systolic BP: 90 + (2 * 5) = 100 mmHg."
+  },
+  {
+    "id": "ANAT-002",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "A patient presents with a high fever, headache, and phonophobia. You note a red/purple rash on the trunk. Which finding would most strongly suggest meningitis?",
+    "options": ["Pain in the legs upon extension", "Nuchal rigidity", "Unequal pupils", "Loss of sensation in the fingers"],
+    "correctAnswer": "Nuchal rigidity",
+    "explanation": "Nuchal rigidity (stiff neck) is a hallmark sign of meningitis, often accompanied by fever and petechiae (rash)."
+  },
+  {
+    "id": "ANAT-003",
+    "module": "Anatomy",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "A patient complains of left shoulder pain after a blunt trauma to the upper abdomen. This referred pain pattern, known as Kehr's Sign, is indicative of injury to which organ?",
+    "options": ["Liver", "Stomach", "Spleen", "Pancreas"],
+    "correctAnswer": "Spleen",
+    "explanation": "Kehr's Sign is referred pain to the left shoulder caused by irritation of the diaphragm, often from a ruptured spleen."
+  },
+  {
+    "id": "ANAT-004",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Medium",
+    "question": "When assessing an infant, you stroke the bottom of the foot and the toes fan upward. In an adult, this same response would be considered pathological. What is this reflex called?",
+    "options": ["Moro Reflex", "Babinski Reflex", "Palmar Grasp", "Rooting Reflex"],
+    "correctAnswer": "Babinski Reflex",
+    "explanation": "A positive Babinski reflex (fanning of toes) is normal in infants but pathological in adults, indicating a neurological issue."
+  },
+  {
+    "id": "ANAT-005",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient has been vomiting for several days. Loss of stomach acid (HCl) would most likely lead to which acid-base imbalance?",
+    "options": ["Metabolic Acidosis", "Respiratory Acidosis", "Metabolic Alkalosis", "Respiratory Alkalosis"],
+    "correctAnswer": "Metabolic Alkalosis",
+    "explanation": "Vomiting causes the loss of hydrochloric acid from the stomach, leaving an excess of bicarbonate in the blood, leading to metabolic alkalosis."
+  },
+  {
+    "id": "ANAT-006",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "A patient with COPD is found to have shallow respirations. Retained CO2 in this patient will likely result in:",
+    "options": ["Respiratory Alkalosis", "Metabolic Alkalosis", "Respiratory Acidosis", "Metabolic Acidosis"],
+    "correctAnswer": "Respiratory Acidosis",
+    "explanation": "Hypoventilation causes CO2 retention. Excess CO2 combines with water to form carbonic acid, lowering blood pH (Respiratory Acidosis)."
+  },
+  {
+    "id": "ANAT-007",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "A patient has sustained a spinal cord injury and lost the ability to breathe spontaneously. Which nerve roots are likely damaged?",
+    "options": ["C1-C2", "C3-C5", "T1-T4", "L1-L5"],
+    "correctAnswer": "C3-C5",
+    "explanation": "The Phrenic Nerve, which controls the diaphragm, originates from C3, C4, and C5. ('C3, 4, 5 keep the diaphragm alive')."
+  },
+  {
+    "id": "ANAT-008",
+    "module": "Anatomy",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "A child presents with flu-like symptoms and lethargy after being given Aspirin. You suspect Reye's Syndrome. This condition primarily affects which organs?",
+    "options": ["Heart and Lungs", "Liver and Brain", "Kidneys and Spleen", "Pancreas and Gallbladder"],
+    "correctAnswer": "Liver and Brain",
+    "explanation": "Reye's Syndrome is a rare but serious condition causing swelling in the liver and brain, often linked to aspirin use in children recovering from viral infections."
+  },
+  {
+    "id": "ANAT-009",
+    "module": "Anatomy",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "During an assessment, you palpate the right upper quadrant (RUQ) and the patient experiences pain upon inspiration, causing them to stop breathing. This is known as Murphy's Sign and suggests inflammation of the:",
+    "options": ["Appendix", "Gallbladder", "Spleen", "Kidney"],
+    "correctAnswer": "Gallbladder",
+    "explanation": "Murphy's Sign (inspiratory arrest on palpation of the RUQ) is a classic sign of Cholecystitis (gallbladder inflammation)."
+  },
+  {
+    "id": "ANAT-010",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "A patient has ingested a large quantity of Aspirin (ASA). Given that aspirin is a salicylate acid, what initial acid-base disturbance would you expect?",
+    "options": ["Respiratory Alkalosis", "Metabolic Alkalosis", "Metabolic Acidosis", "Respiratory Acidosis"],
+    "correctAnswer": "Metabolic Acidosis",
+    "explanation": "Ingestion of acidic substances like aspirin directly increases the acid load in the body, leading to Metabolic Acidosis."
+  },
+  {
+    "id": "ANAT-011",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Medium",
+    "question": "A patient has lost sensation below the level of the umbilicus. This dermatome landmark correlates with which spinal level?",
+    "options": ["T4", "T10", "C7", "L1"],
+    "correctAnswer": "T10",
+    "explanation": "The T10 dermatome corresponds to the level of the umbilicus. T4 is at the nipple line."
+  },
+  {
+    "id": "ANAT-012",
+    "module": "Anatomy",
+    "category": "Cellular",
+    "difficulty": "Hard",
+    "question": "The movement of water across a semipermeable membrane from an area of low solute concentration to high solute concentration is called:",
+    "options": ["Diffusion", "Active Transport", "Osmosis", "Facilitated Diffusion"],
+    "correctAnswer": "Osmosis",
+    "explanation": "Osmosis is the specific term for the movement of water down its concentration gradient (or towards higher solute concentration)."
+  },
+  {
+    "id": "ANAT-013",
+    "module": "Anatomy",
+    "category": "Cellular",
+    "difficulty": "Medium",
+    "question": "Which cation is the most abundant intracellular ion?",
+    "options": ["Sodium (Na+)", "Calcium (Ca++)", "Potassium (K+)", "Magnesium (Mg++)"],
+    "correctAnswer": "Potassium (K+)",
+    "explanation": "Potassium is the primary intracellular cation, while Sodium is the primary extracellular cation."
+  },
+  {
+    "id": "ANAT-014",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "You are assessing a newborn. If the heart rate remains below 100 bpm after initial steps and oxygen administration, what is the next appropriate action?",
+    "options": ["Begin chest compressions", "Administer Epinephrine", "Warm the infant", "Ventilate with BVM"],
+    "correctAnswer": "Begin chest compressions",
+    "explanation": "Per the text, CPR (chest compressions) should be initiated on a newborn if the HR does not go up after O2/ventilation."
+  },
+  {
+    "id": "ANAT-015",
+    "module": "Anatomy",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "You are assessing a patient with abdominal pain. Tenderness at McBurney's point is most strongly associated with:",
+    "options": ["Cholecystitis", "Pancreatitis", "Appendicitis", "Diverticulitis"],
+    "correctAnswer": "Appendicitis",
+    "explanation": "McBurney's point is located in the Right Lower Quadrant (RLQ) and is the classic site of tenderness for Appendicitis."
+  },
+  {
+    "id": "ANAT-016",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Anaerobic metabolism occurs in the absence of oxygen. A primary byproduct of this process that can lead to acidosis is:",
+    "options": ["Carbon Dioxide", "Lactic Acid", "Pyruvic Acid", "Water"],
+    "correctAnswer": "Lactic Acid",
+    "explanation": "Without oxygen, cells rely on anaerobic metabolism, which produces lactic acid as a waste product, potentially causing metabolic acidosis."
+  },
+  {
+    "id": "ANAT-017",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "Which part of the brain is primarily responsible for coordination, balance, and fine motor movement?",
+    "options": ["Cerebrum", "Brainstem", "Cerebellum", "Diencephalon"],
+    "correctAnswer": "Cerebellum",
+    "explanation": "The cerebellum ('little brain') regulates balance, posture, and fine motor coordination."
+  },
+  {
+    "id": "ANAT-018",
+    "module": "Anatomy",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Cor Pulmonale is best described as:",
+    "options": ["Left-sided heart failure due to hypertension", "Right-sided heart failure due to pulmonary hypertension", "Heart failure due to valve regurgitation", "Myocardial infarction of the right ventricle"],
+    "correctAnswer": "Right-sided heart failure due to pulmonary hypertension",
+    "explanation": "Cor Pulmonale is failure of the right side of the heart caused by high pressure in the pulmonary arteries (pulmonary hypertension), often from chronic lung disease."
+  },
+  {
+    "id": "ANAT-019",
+    "module": "Anatomy",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "A patient presents with bruising around the umbilicus. This finding is known as Cullen's Sign and suggests:",
+    "options": ["Retroperitoneal bleeding", "Intraperitoneal bleeding", "Kidney trauma", "Aortic aneurysm"],
+    "correctAnswer": "Intraperitoneal bleeding",
+    "explanation": "Cullen's Sign (periumbilical ecchymosis) indicates bleeding within the abdominal cavity (intraperitoneal hemorrhage)."
+  },
+  {
+    "id": "ANAT-020",
+    "module": "Anatomy",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "A 'Hangman's Fracture' involves a fracture of which specific cervical vertebrae structure?",
+    "options": ["C1 (Atlas)", "Odontoid process (Dens) of C2", "Spinous process of C7", "Body of C3"],
+    "correctAnswer": "Odontoid process (Dens) of C2",
+    "explanation": "A Hangman's fracture is a fracture of the axis (C2), specifically involving the odontoid process (dens), often caused by hyperextension."
+  },
+  // ==========================================
+  // === AIRWAY MODULE ===
+  // ==========================================
+  {
+    "id": "ARWY-001",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "According to the Fick Principle, adequate oxygenation of the body requires three key components. Which of the following is NOT one of these components?",
+    "options": ["On-loading of oxygen at the lungs", "Transport of oxygen by the circulatory system", "Off-loading of oxygen at the tissue level", "Utilization of glucose by the mitochondria"],
+    "correctAnswer": "Utilization of glucose by the mitochondria",
+    "explanation": "The Fick Principle specifically evaluates oxygenation based on: 1. On-loading of O2 at the lungs, 2. Transport of O2 by the blood/heart, and 3. Off-loading of O2 at the tissue."
+  },
+  {
+    "id": "ARWY-002",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient presents with a PaCO2 of 60 mmHg. Based on normal physiological ranges, this finding indicates the patient is:",
+    "options": ["Hyperventilating", "Hypoventilating", "Maintaining normal ventilation", "In a state of respiratory alkalosis"],
+    "correctAnswer": "Hypoventilating",
+    "explanation": "Normal PaCO2 is 35-45 mmHg. A level of 60 mmHg indicates hypercarbia (retained CO2), which means the patient is breathing too slowly (hypoventilating)."
+  },
+  {
+    "id": "ARWY-003",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Which reflex relies on stretch receptors in the intercostal muscles and lungs to prevent over-inflation during inspiration?",
+    "options": ["Cushing's Reflex", "Hering-Breuer Reflex", "Moro Reflex", "Babinski Reflex"],
+    "correctAnswer": "Hering-Breuer Reflex",
+    "explanation": "The Hering-Breuer reflex uses stretch receptors to provide feedback to the respiratory centers, preventing over-expansion of the lungs."
+  },
+  {
+    "id": "ARWY-004",
+    "module": "Airway",
+    "category": "Cellular",
+    "difficulty": "Medium",
+    "question": "Gas exchange at the cellular level, where oxygen is delivered to tissues and carbon dioxide is removed, is referred to as:",
+    "options": ["Pulmonary respiration", "Ventilation", "Capillary respiration", "Alveolar exchange"],
+    "correctAnswer": "Capillary respiration",
+    "explanation": "Capillary respiration refers to the exchange of O2 and CO2 at the cellular level, distinct from pulmonary respiration which happens in the lungs."
+  },
+  {
+    "id": "ARWY-005",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient is hyperventilating due to anxiety. You would expect their PaCO2 level to be:",
+    "options": ["Elevated (>45 mmHg)", "Normal (35-45 mmHg)", "Decreased (<35 mmHg)", "Variable depending on oxygen saturation"],
+    "correctAnswer": "Decreased (<35 mmHg)",
+    "explanation": "Hyperventilation blows off excess CO2, leading to hypocarbia (decreased PaCO2) and potentially respiratory alkalosis."
+  },
+  {
+    "id": "ARWY-006",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Carpopedal spasm is a clinical sign most commonly associated with which respiratory condition?",
+    "options": ["Hypoventilation causing acidosis", "Hyperventilation causing alkalosis", "Carbon monoxide poisoning", "Opioid overdose"],
+    "correctAnswer": "Hyperventilation causing alkalosis",
+    "explanation": "Hyperventilation leads to respiratory alkalosis and hypocarbia, which can cause calcium shifts resulting in carpopedal spasms (cramping of hands/feet)."
+  },
+  {
+    "id": "ARWY-007",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Which chemoreceptors are primarily responsible for monitoring the pH of the cerebrospinal fluid (CSF)?",
+    "options": ["Peripheral chemoreceptors in the aorta", "Central chemoreceptors in the medulla oblongata", "Stretch receptors in the lung parenchyma", "Baroreceptors in the carotid arteries"],
+    "correctAnswer": "Central chemoreceptors in the medulla oblongata",
+    "explanation": "Central chemoreceptors located in the medulla oblongata monitor the pH of the CSF (driven by CO2 levels) to control breathing."
+  },
+  {
+    "id": "ARWY-008",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Surfactant is a substance produced in the lungs that serves to:",
+    "options": ["Increase surface tension to aid expiration", "Decrease surface tension to prevent alveolar collapse", "Fight bacterial infections in the alveoli", "Facilitate the transport of CO2"],
+    "correctAnswer": "Decrease surface tension to prevent alveolar collapse",
+    "explanation": "Surfactant reduces surface tension within the alveoli, preventing them from collapsing (atelectasis) and making it easier to inflate the lungs."
+  },
+  {
+    "id": "ARWY-009",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "According to Boyle's Law, as the diaphragm contracts and descends, the volume of the thoracic cavity increases. This causes intrathoracic pressure to:",
+    "options": ["Increase, forcing air out", "Decrease, creating a vacuum that pulls air in", "Remain constant", "Equalize with abdominal pressure"],
+    "correctAnswer": "Decrease, creating a vacuum that pulls air in",
+    "explanation": "Boyle's Law states pressure and volume are inversely related. Increasing thoracic volume lowers pressure below atmospheric, drawing air in."
+  },
+  {
+    "id": "ARWY-010",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "A Ventilation/Perfusion (V/Q) mismatch occurs when there is a disruption in the ratio of air reaching the alveoli to blood reaching the alveoli. Which condition creates a V/Q mismatch due to a perfusion problem?",
+    "options": ["Pneumonia", "Pulmonary Embolism", "Asthma", "Choking"],
+    "correctAnswer": "Pulmonary Embolism",
+    "explanation": "A Pulmonary Embolism blocks blood flow (perfusion) to the lungs while ventilation remains normal, creating a classic V/Q mismatch."
+  },
+  {
+    "id": "ARWY-011",
+    "module": "Airway",
+    "category": "Neuro",
+    "difficulty": "Medium",
+    "question": "In a patient with chronic CO2 retention (e.g., COPD), the respiratory drive may shift from monitoring CO2 levels to monitoring O2 levels. This is known as:",
+    "options": ["Hypercarbic drive", "Hypoxic drive", "Metabolic drive", "Central neurogenic drive"],
+    "correctAnswer": "Hypoxic drive",
+    "explanation": "Chronic retainers become desensitized to high CO2. Their backup drive is stimulated by low oxygen levels, known as the Hypoxic Drive."
+  },
+  {
+    "id": "ARWY-012",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "The movement of oxygen from the alveoli into the pulmonary capillaries occurs via which process?",
+    "options": ["Active transport", "Diffusion", "Osmosis", "Filtration"],
+    "correctAnswer": "Diffusion",
+    "explanation": "Gas exchange in the lungs relies on diffusion, where gas moves from an area of higher concentration to lower concentration."
+  },
+  {
+    "id": "ARWY-013",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Which of the following represents the correct formula for Minute Volume?",
+    "options": ["Respiratory Rate x Tidal Volume", "Respiratory Rate x Dead Space", "(Tidal Volume - Dead Space) x Respiratory Rate", "Cardiac Output x Respiratory Rate"],
+    "correctAnswer": "Respiratory Rate x Tidal Volume",
+    "explanation": "Minute Volume is simply the total amount of air moved in one minute, calculated as Tidal Volume multiplied by Respiratory Rate."
+  },
+  {
+    "id": "ARWY-014",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Alveolar Ventilation differs from Minute Volume because it accounts for:",
+    "options": ["Residual volume", "Dead space air", "Expiratory reserve volume", "Total lung capacity"],
+    "correctAnswer": "Dead space air",
+    "explanation": "Alveolar ventilation subtracts the dead space (air not reaching alveoli) from the tidal volume before multiplying by the rate, giving a truer measure of gas exchange."
+  },
+  {
+    "id": "ARWY-015",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient with a pH of 7.25 is considered to be in a state of:",
+    "options": ["Acidosis", "Alkalosis", "Homeostasis", "Compensated alkalosis"],
+    "correctAnswer": "Acidosis",
+    "explanation": "Normal pH is 7.35-7.45. A pH below 7.35 indicates acidosis."
+  },
+  {
+    "id": "ARWY-016",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A 'Blue Bloater' is a term historically used to describe a patient suffering from:",
+    "options": ["Emphysema", "Chronic Bronchitis", "Asthma", "Pneumonia"],
+    "correctAnswer": "Chronic Bronchitis",
+    "explanation": "Chronic Bronchitis patients are often called 'Blue Bloaters' due to cyanosis (blue) and fluid retention/edema (bloater)."
+  },
+  {
+    "id": "ARWY-017",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A 'Pink Puffer' is a term historically used to describe a patient suffering from:",
+    "options": ["Emphysema", "Chronic Bronchitis", " pulmonary fibrosis", "Lung Cancer"],
+    "correctAnswer": "Emphysema",
+    "explanation": "Emphysema patients are called 'Pink Puffers' because they hyperventilate to maintain oxygenation (staying pink) and often have a barrel chest."
+  },
+  {
+    "id": "ARWY-018",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Pulsus Paradoxus, often seen in severe asthma or COPD, is defined as:",
+    "options": ["A drop in systolic BP > 10 mmHg during inhalation", "A rise in systolic BP > 10 mmHg during inhalation", "An irregular heart rhythm during exhalation", "A narrowing pulse pressure"],
+    "correctAnswer": "A drop in systolic BP > 10 mmHg during inhalation",
+    "explanation": "Pulsus Paradoxus is a drop in systolic blood pressure of more than 10 mmHg during inspiration, caused by increased intrathoracic pressure."
+  },
+  {
+    "id": "ARWY-019",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "In a patient with DKA, deep and rapid respirations aimed at blowing off excess CO2 are called:",
+    "options": ["Cheyne-Stokes respirations", "Kussmaul respirations", "Biot's respirations", "Agonal respirations"],
+    "correctAnswer": "Kussmaul respirations",
+    "explanation": "Kussmaul respirations are a compensatory mechanism to reduce acidity by exhaling CO2, commonly seen in Diabetic Ketoacidosis."
+  },
+  {
+    "id": "ARWY-020",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Which breathing pattern is characterized by irregular respirations with periods of apnea, often indicating brainstem injury?",
+    "options": ["Cheyne-Stokes", "Biot's (Ataxic)", "Kussmaul's", "Eupnea"],
+    "correctAnswer": "Biot's (Ataxic)",
+    "explanation": "Biot's or Ataxic respirations are irregular with no pattern and periods of apnea, typically signaling severe brainstem damage."
+  },
+  {
+    "id": "ARWY-021",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A 'Shark Fin' waveform on capnography is diagnostic for:",
+    "options": ["Hyperventilation", "Bronchospasm (Asthma/COPD)", " pulmonary embolism", "Tube obstruction"],
+    "correctAnswer": "Bronchospasm (Asthma/COPD)",
+    "explanation": "The shark fin appearance on an EtCO2 waveform indicates difficulty exhaling (obstructive process), typical of asthma and COPD."
+  },
+  {
+    "id": "ARWY-022",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Rhonchi are low-pitched breath sounds typically caused by:",
+    "options": ["Fluid in the alveoli", "Mucus in the larger airways", "Bronchoconstriction", "Upper airway obstruction"],
+    "correctAnswer": "Mucus in the larger airways",
+    "explanation": "Rhonchi are rattling sounds caused by mucus in the larger airways (bronchi), often clearing with a cough."
+  },
+  {
+    "id": "ARWY-023",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Fine crackles (Rales) heard in the lung bases are most indicative of:",
+    "options": ["Asthma", "Fluid in the alveoli (CHF/Pneumonia)", " COPD", "Pneumothorax"],
+    "correctAnswer": "Fluid in the alveoli (CHF/Pneumonia)",
+    "explanation": "Fine crackles indicate the popping open of fluid-filled alveoli, classically associated with pulmonary edema or pneumonia."
+  },
+  {
+    "id": "ARWY-024",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Tactile Fremitus (vibration felt on the chest wall) would be INCREASED in which condition?",
+    "options": ["Pneumothorax", "Pleural Effusion", "Pneumonia (Consolidation)", "Emphysema"],
+    "correctAnswer": "Pneumonia (Consolidation)",
+    "explanation": "Sound and vibration travel better through solid/fluid-filled lung (consolidation) than through air, increasing tactile fremitus in pneumonia."
+  },
+  {
+    "id": "ARWY-025",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Snoring respirations in an unconscious patient are most likely caused by:",
+    "options": ["Fluid in the upper airway", "The tongue obstructing the pharynx", "Laryngeal spasm", "Lower airway constriction"],
+    "correctAnswer": "The tongue obstructing the pharynx",
+    "explanation": "The tongue falling back against the pharynx is the most common cause of upper airway obstruction, manifesting as snoring."
+  },
+  {
+    "id": "ARWY-026",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Cor Pulmonale refers to:",
+    "options": ["Left ventricular failure due to hypertension", "Right ventricular hypertrophy/failure due to pulmonary hypertension", "Pericardial inflammation", "Aortic aneurysm dissection"],
+    "correctAnswer": "Right ventricular hypertrophy/failure due to pulmonary hypertension",
+    "explanation": "Cor Pulmonale is right-sided heart failure caused by high pressure in the lungs (pulmonary hypertension), often secondary to COPD."
+  },
+  {
+    "id": "ARWY-027",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient with a 'seal-like' barking cough likely has:",
+    "options": ["Epiglottitis", "Croup", "Asthma", "Bronchiolitis"],
+    "correctAnswer": "Croup",
+    "explanation": "Croup (laryngotracheobronchitis) is a viral infection affecting the subglottic area, characterized by a classic barking cough."
+  },
+  {
+    "id": "ARWY-028",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Epiglottitis is characterized by which triad of symptoms?",
+    "options": ["Barking cough, fever, rhinorrhea", "Drooling, dysphagia, distress", "Wheezing, tachycardia, eczema", "Productive cough, fever, chills"],
+    "correctAnswer": "Drooling, dysphagia, distress",
+    "explanation": "Epiglottitis presents with drooling (can't swallow), dysphagia (pain swallowing), and distress. A cough is usually absent."
+  },
+  {
+    "id": "ARWY-029",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Sudden onset of sharp pleuritic chest pain and shortness of breath in a tall, thin male smoker suggests:",
+    "options": ["Myocardial Infarction", "Spontaneous Pneumothorax", "Pneumonia", "Pericarditis"],
+    "correctAnswer": "Spontaneous Pneumothorax",
+    "explanation": "Spontaneous pneumothorax is statistically common in tall, thin males, especially smokers."
+  },
+  {
+    "id": "ARWY-030",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Night sweats, weight loss, and hemoptysis are classic signs of:",
+    "options": ["Lung Cancer", "Tuberculosis (TB)", "Chronic Bronchitis", "Pneumonia"],
+    "correctAnswer": "Tuberculosis (TB)",
+    "explanation": "Tuberculosis is classically associated with night sweats, weight loss, and coughing up blood (hemoptysis)."
+  },
+  {
+    "id": "ARWY-031",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Ludwig's Angina is a life-threatening infection located in the:",
+    "options": ["Epiglottis", "Floor of the mouth", "Mediastinum", "Lower lobes of the lung"],
+    "correctAnswer": "Floor of the mouth",
+    "explanation": "Ludwig's Angina is a cellulitis of the floor of the mouth, often from a tooth abscess, that can rapidly occlude the airway."
+  },
+  {
+    "id": "ARWY-032",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "The classic triad of risk factors for Pulmonary Embolism includes:",
+    "options": ["Male gender, smoker, hypertension", "Female gender, smoker, birth control pills", "Elderly, diabetic, sedentary", "Young, athletic, non-smoker"],
+    "correctAnswer": "Female gender, smoker, birth control pills",
+    "explanation": "Females over 30 who smoke and take oral contraceptives (estrogen) are at significantly higher risk for PE."
+  },
+  {
+    "id": "ARWY-033",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Carbon Monoxide (CO) causes hypoxia primarily by:",
+    "options": ["Destroying alveoli", "Binding to hemoglobin with higher affinity than oxygen", "Paralyzing the diaphragm", "Causing laryngeal spasm"],
+    "correctAnswer": "Binding to hemoglobin with higher affinity than oxygen",
+    "explanation": "CO binds to hemoglobin 200-250 times more strongly than oxygen, preventing O2 transport to tissues."
+  },
+  {
+    "id": "ARWY-034",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Bronchiolitis in infants is most commonly caused by:",
+    "options": ["Influenza A", "Respiratory Syncytial Virus (RSV)", "Rhinovirus", "Streptococcus"],
+    "correctAnswer": "Respiratory Syncytial Virus (RSV)",
+    "explanation": "RSV is the primary viral cause of bronchiolitis in children under 2 years old."
+  },
+  {
+    "id": "ARWY-035",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Cheyne-Stokes respirations are characterized by:",
+    "options": ["Regular deep, rapid breathing", "Crescendo-decrescendo pattern with periods of apnea", "Irregular pattern with irregular depth", "Gasps with long pauses"],
+    "correctAnswer": "Crescendo-decrescendo pattern with periods of apnea",
+    "explanation": "Cheyne-Stokes is a rhythmic pattern of increasing and decreasing depth followed by apnea, often seen in stroke or head injury."
+  },
+  {
+    "id": "ARWY-036",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "A patient with laryngeal edema and stridor who takes an ACE inhibitor is likely experiencing:",
+    "options": ["Anaphylaxis", "Angioedema", "Epiglottitis", "Croup"],
+    "correctAnswer": "Angioedema",
+    "explanation": "ACE inhibitors (ending in -pril) can cause non-allergic angioedema, manifesting as swelling of the tongue/lips/larynx."
+  },
+  {
+    "id": "ARWY-037",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Pneumomediastinum (air in the mediastinum) typically presents with:",
+    "options": ["Unilateral wheezing", "Subcutaneous emphysema and Hamman's sign", "Tracheal deviation", "Absent breath sounds"],
+    "correctAnswer": "Subcutaneous emphysema and Hamman's sign",
+    "explanation": "Air escaping into the mediastinum can cause subcutaneous emphysema in the neck and a crunching sound (Hamman's sign) synchronized with the heartbeat."
+  },
+  {
+    "id": "ARWY-038",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Which of the following is considered a 'Late' sign of respiratory failure?",
+    "options": ["Tachycardia", "Cyanosis", "Restlessness", "Tachypnea"],
+    "correctAnswer": "Cyanosis",
+    "explanation": "Cyanosis is a late sign of hypoxia. Anxiety and tachycardia appear much earlier."
+  },
+  {
+    "id": "ARWY-039",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Clubbing of the fingers is a sign of:",
+    "options": ["Acute asthma attack", "Chronic hypoxia", "Acute infection", "Carbon monoxide poisoning"],
+    "correctAnswer": "Chronic hypoxia",
+    "explanation": "Clubbing (enlargement of fingertips) is a sign of long-term, chronic hypoxia seen in conditions like COPD or cystic fibrosis."
+  },
+  {
+    "id": "ARWY-040",
+    "module": "Airway",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "In a patient with a tension pneumothorax, hypotension is caused by:",
+    "options": ["Hypovolemia from internal bleeding", "Decreased venous return due to high intrathoracic pressure", "Vagal nerve stimulation", "Direct heart injury"],
+    "correctAnswer": "Decreased venous return due to high intrathoracic pressure",
+    "explanation": "High pressure in the chest squeezes the vena cava, preventing blood from returning to the heart (decreased preload), causing shock."
+  },
+  // ==========================================
+  // === TRAUMA MODULE ===
+  // ==========================================
+  {
+    "id": "TRAUMA-001",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "Which of the following signs, involving bruising around the umbilicus, is indicative of intraperitoneal bleeding?",
+    "options": ["Grey Turner's Sign", "Cullen's Sign", "Battle's Sign", "Kehr's Sign"],
+    "correctAnswer": "Cullen's Sign",
+    "explanation": "Cullen's sign is periumbilical ecchymosis (bruising) and is indicative of intraperitoneal bleeding."
+  },
+  {
+    "id": "TRAUMA-002",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A patient presents with bruising to the flanks. This finding, known as Grey Turner's Sign, is most strongly associated with:",
+    "options": ["Splenic rupture", "Liver laceration", "Retroperitoneal bleeding", "Intraperitoneal bleeding"],
+    "correctAnswer": "Retroperitoneal bleeding",
+    "explanation": "Grey Turner's sign (flank bruising) is a late sign often associated with retroperitoneal bleeding, such as from the kidneys or pancreas."
+  },
+  {
+    "id": "TRAUMA-003",
+    "module": "Trauma",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "Following a head injury, a patient exhibits a lucid interval (a period of consciousness followed by rapid deterioration). This presentation is classic for which type of intracranial hemorrhage?",
+    "options": ["Subdural hematoma", "Epidural hematoma", "Intracerebral hemorrhage", "Subarachnoid hemorrhage"],
+    "correctAnswer": "Epidural hematoma",
+    "explanation": "An epidural hematoma involves an arterial bleed (often the middle meningeal artery) and is classically associated with a lucid interval before rapid decline."
+  },
+  {
+    "id": "TRAUMA-004",
+    "module": "Trauma",
+    "category": "Neuro",
+    "difficulty": "Hard",
+    "question": "A patient with a head injury displays Cushing's Reflex. Which vital sign changes would you expect to find?",
+    "options": ["Hypotension, tachycardia, irregular respirations", "Hypertension, bradycardia, irregular respirations", "Hypotension, bradycardia, eupnea", "Hypertension, tachycardia, tachypnea"],
+    "correctAnswer": "Hypertension, bradycardia, irregular respirations",
+    "explanation": "Cushing's Reflex (or Triad) is a sign of increased intracranial pressure characterized by hypertension (widening pulse pressure), bradycardia, and irregular respirations."
+  },
+  {
+    "id": "TRAUMA-005",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Medium",
+    "question": "You are assessing a patient with a spinal cord injury. They present with hypotension and bradycardia. The skin above the injury site is cool and clammy, while below it is warm and dry. This presentation is consistent with:",
+    "options": ["Hypovolemic shock", "Septic shock", "Neurogenic shock", "Cardiogenic shock"],
+    "correctAnswer": "Neurogenic shock",
+    "explanation": "Neurogenic shock results from a disruption in sympathetic tone, leading to vasodilation (hypotension) and an inability to increase heart rate (bradycardia). The skin differentiation is a classic sign."
+  },
+  {
+    "id": "TRAUMA-006",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Hard",
+    "question": "A patient has suffered a hemisection of the spinal cord (Brown-Sequard Syndrome). Which of the following deficits would you expect to find?",
+    "options": ["Loss of motor function and pain/temperature sensation on the same side", "Loss of motor function on the opposite side and pain/temperature on the same side", "Loss of motor function on the same side and pain/temperature sensation on the opposite side", "Complete loss of all function below the injury"],
+    "correctAnswer": "Loss of motor function on the same side and pain/temperature sensation on the opposite side",
+    "explanation": "Brown-Sequard syndrome causes ipsilateral (same side) loss of motor function and contralateral (opposite side) loss of pain and temperature sensation."
+  },
+  {
+    "id": "TRAUMA-007",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "Beck's Triad is a collection of signs indicative of cardiac tamponade. Which of the following is NOT part of this triad?",
+    "options": ["JVD (Jugular Vein Distention)", "Muffled heart tones", "Narrowing pulse pressure", "Tracheal deviation"],
+    "correctAnswer": "Tracheal deviation",
+    "explanation": "Beck's Triad consists of JVD, muffled heart tones, and narrowing pulse pressure (hypotension). Tracheal deviation is a sign of tension pneumothorax."
+  },
+  {
+    "id": "TRAUMA-008",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Hard",
+    "question": "Using the Parkland Burn Formula (4mL x kg x %BSA), calculate the total fluid volume needed in the first 24 hours for a 100 kg patient with 50% body surface area burns.",
+    "options": ["10,000 mL", "20,000 mL", "5,000 mL", "2,000 mL"],
+    "correctAnswer": "20,000 mL",
+    "explanation": "4 mL * 100 kg * 50 = 20,000 mL."
+  },
+  {
+    "id": "TRAUMA-009",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Hard",
+    "question": "Following the Parkland Burn Formula calculation, how much of the total fluid volume should be administered in the first 8 hours?",
+    "options": ["The total amount", "One-third", "One-half", "One-quarter"],
+    "correctAnswer": "One-half",
+    "explanation": "Half of the calculated 24-hour fluid volume is given in the first 8 hours post-burn."
+  },
+  {
+    "id": "TRAUMA-010",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A LeFort III fracture involves which of the following?",
+    "options": ["Only the nasal bones", "The maxilla and nasal bones", "A complete craniofacial disjunction (floating face)", "A mandibular fracture"],
+    "correctAnswer": "A complete craniofacial disjunction (floating face)",
+    "explanation": "A LeFort III fracture is a complete separation of the facial bones from the skull (craniofacial disjunction)."
+  },
+  {
+    "id": "TRAUMA-011",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "Traumatic asphyxia is characterized by which specific set of findings?",
+    "options": ["JVD, cyanosis of the face/neck, and bulging eyes", "Hypotension, tachycardia, and pale skin", "Tracheal deviation and absent breath sounds", "Paradoxical chest movement"],
+    "correctAnswer": "JVD, cyanosis of the face/neck, and bulging eyes",
+    "explanation": "Traumatic asphyxia results from severe chest compression causing backflow of blood, leading to JVD, facial cyanosis/swelling, and exophthalmos (bulging eyes)."
+  },
+  {
+    "id": "TRAUMA-012",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Easy",
+    "question": "A 'Colles fracture' is a fracture of which bone?",
+    "options": ["Femur", "Humerus", "Distal radius", "Clavicle"],
+    "correctAnswer": "Distal radius",
+    "explanation": "A Colles fracture is a fracture of the distal radius in the forearm, often creating a 'silver fork' deformity."
+  },
+  {
+    "id": "TRAUMA-013",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Medium",
+    "question": "Which of the following skin presentations is most consistent with early septic shock?",
+    "options": ["Cool and clammy", "Pale and moist", "Hot and dry/flushed", "Mottled and cold"],
+    "correctAnswer": "Hot and dry/flushed",
+    "explanation": "In early septic shock, vasodilation and fever typically cause the skin to be hot and flushed, unlike the cool/clammy skin of hypovolemic shock."
+  },
+  {
+    "id": "TRAUMA-014",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "The definitive treatment for a tension pneumothorax in the prehospital setting is:",
+    "options": ["Rapid fluid administration", "Needle decompression", "Endotracheal intubation", "Pericardiocentesis"],
+    "correctAnswer": "Needle decompression",
+    "explanation": "A tension pneumothorax requires immediate pressure relief via needle decompression."
+  },
+  {
+    "id": "TRAUMA-015",
+    "module": "Trauma",
+    "category": "Assessment",
+    "difficulty": "Hard",
+    "question": "The 'Halo Test' is used to identify the presence of:",
+    "options": ["Blood in the urine", "Cerebrospinal Fluid (CSF) in blood", "Bile in vomit", "Air in the pleural space"],
+    "correctAnswer": "Cerebrospinal Fluid (CSF) in blood",
+    "explanation": "When blood containing CSF is placed on a filter paper, the CSF spreads out faster, creating a yellowish 'halo' around the red blood."
+  },
+  {
+    "id": "TRAUMA-016",
+    "module": "Trauma",
+    "category": "Neuro",
+    "difficulty": "Medium",
+    "question": "Which type of posturing indicates a brainstem injury and involves extension of the arms and legs?",
+    "options": ["Decorticate", "Decerebrate", "Fencing response", "Withdrawal to pain"],
+    "correctAnswer": "Decerebrate",
+    "explanation": "Decerebrate posturing (extension) indicates damage to the brainstem and is a more ominous sign than decorticate posturing."
+  },
+  {
+    "id": "TRAUMA-017",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A patient with a flail chest will exhibit:",
+    "options": ["Tracheal deviation", "Paradoxical chest movement", "Absent breath sounds", "Subcutaneous emphysema"],
+    "correctAnswer": "Paradoxical chest movement",
+    "explanation": "A flail chest segment moves opposite to the rest of the chest wall during respiration (paradoxical motion)."
+  },
+  {
+    "id": "TRAUMA-018",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "What is the appropriate treatment for a dry lime burn?",
+    "options": ["Flush immediately with water", "Brush off the dry powder first, then flush", "Neutralize with vinegar", "Cover with an occlusive dressing"],
+    "correctAnswer": "Brush off the dry powder first, then flush",
+    "explanation": "Water can activate dry lime and cause a thermal burn. It must be brushed off before flushing with copious amounts of water."
+  },
+  {
+    "id": "TRAUMA-019",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Hard",
+    "question": "Bowel sounds heard in the chest cavity are a specific sign of:",
+    "options": ["Pneumothorax", "Hemothorax", "Diaphragmatic rupture", "Esophageal varices"],
+    "correctAnswer": "Diaphragmatic rupture",
+    "explanation": "A rupture in the diaphragm allows abdominal contents (bowel) to herniate into the chest, where their sounds can be auscultated."
+  },
+  {
+    "id": "TRAUMA-020",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Medium",
+    "question": "The Shock Index is calculated by dividing:",
+    "options": ["Systolic BP by Heart Rate", "Heart Rate by Systolic BP", "Diastolic BP by Heart Rate", "Heart Rate by Respiratory Rate"],
+    "correctAnswer": "Heart Rate by Systolic BP",
+    "explanation": "The Shock Index (SI) is Heart Rate / Systolic BP. A value > 1.0 indicates significant shock."
+  },
+  {
+    "id": "TRAUMA-021",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A patient with an isolated femur fracture can lose up to how much blood internally?",
+    "options": ["250 mL", "500 mL", "1,000 mL (1 Liter)", "3,000 mL"],
+    "correctAnswer": "1,000 mL (1 Liter)",
+    "explanation": "A femur fracture can result in significant internal hemorrhage, typically estimated up to 1,000 mL (1 Liter)."
+  },
+  {
+    "id": "TRAUMA-022",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Hard",
+    "question": "Which of the following fractures carries the highest risk for massive internal hemorrhage, potentially up to 2-4 Liters?",
+    "options": ["Femur fracture", "Pelvic fracture", "Humerus fracture", "Tib/Fib fracture"],
+    "correctAnswer": "Pelvic fracture",
+    "explanation": "Pelvic fractures can cause catastrophic blood loss (2,000-4,000 mL) due to the large vascular space and proximity to major vessels."
+  },
+  {
+    "id": "TRAUMA-023",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "The proper treatment for an eviscerated bowel is to:",
+    "options": ["Push the organs back in", "Cover with a dry sterile dressing", "Cover with a moist sterile dressing and then an occlusive layer", "Leave it open to air"],
+    "correctAnswer": "Cover with a moist sterile dressing and then an occlusive layer",
+    "explanation": "Eviscerations should be kept moist and warm. They should never be pushed back in."
+  },
+  {
+    "id": "TRAUMA-024",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "Commotio Cordis is cardiac arrest caused by:",
+    "options": ["Penetrating trauma to the heart", "A blunt impact to the chest during a critical phase of the cardiac cycle (R on T)", "Massive myocardial infarction", "Pericardial tamponade"],
+    "correctAnswer": "A blunt impact to the chest during a critical phase of the cardiac cycle (R on T)",
+    "explanation": "Commotio Cordis is V-Fib arrest caused by a blow to the chest timed perfectly on the T-wave upstroke."
+  },
+  {
+    "id": "TRAUMA-025",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Easy",
+    "question": "What is the primary treatment for a sucking chest wound (open pneumothorax)?",
+    "options": ["Needle decompression", "Occlusive dressing taped on 3 sides", "Bulky trauma dressing", "Intubation"],
+    "correctAnswer": "Occlusive dressing taped on 3 sides",
+    "explanation": "An occlusive dressing prevents air from entering the chest while allowing air to escape (flutter valve effect)."
+  },
+  {
+    "id": "TRAUMA-026",
+    "module": "Trauma",
+    "category": "Assessment",
+    "difficulty": "Medium",
+    "question": "According to the Rule of Nines, an adult with burns to the entire anterior chest and abdomen has burns covering what percentage of their body?",
+    "options": ["9%", "18%", "27%", "36%"],
+    "correctAnswer": "18%",
+    "explanation": "The anterior trunk (chest + abdomen) accounts for 18% of the BSA in an adult."
+  },
+  {
+    "id": "TRAUMA-027",
+    "module": "Trauma",
+    "category": "Neuro",
+    "difficulty": "Medium",
+    "question": "A patient with a fixed and dilated pupil usually has compression of which cranial nerve?",
+    "options": ["Optic (CN II)", "Oculomotor (CN III)", "Vagus (CN X)", "Facial (CN VII)"],
+    "correctAnswer": "Oculomotor (CN III)",
+    "explanation": "The Oculomotor nerve (CN III) controls pupil constriction. Compression (herniation) causes it to fail, leaving the pupil dilated."
+  },
+  {
+    "id": "TRAUMA-028",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "A Sager traction splint is CONTRAINDICATED in which of the following scenarios?",
+    "options": ["Mid-shaft femur fracture", "Pelvic fracture", "Closed femur fracture", "Open femur fracture"],
+    "correctAnswer": "Pelvic fracture",
+    "explanation": "Traction splints pull against the pelvis (ischial tuberosity). If the pelvis is fractured, the splint will cause further damage/pain."
+  },
+  {
+    "id": "TRAUMA-029",
+    "module": "Trauma",
+    "category": "Assessment",
+    "difficulty": "Medium",
+    "question": "Pulse pressure is defined as:",
+    "options": ["Systolic BP + Diastolic BP", "Systolic BP - Diastolic BP", "Diastolic BP + 1/3 Systolic", "Heart Rate x Stroke Volume"],
+    "correctAnswer": "Systolic BP - Diastolic BP",
+    "explanation": "Pulse pressure is the difference between the systolic and diastolic pressures."
+  },
+  {
+    "id": "TRAUMA-030",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Hard",
+    "question": "A narrowing pulse pressure is an early sign of which type of shock?",
+    "options": ["Neurogenic", "Septic", "Hypovolemic/Cardiogenic", "Anaphylactic"],
+    "correctAnswer": "Hypovolemic/Cardiogenic",
+    "explanation": "In hypovolemic/cardiogenic shock, peripheral vasoconstriction raises the diastolic pressure while systolic drops, narrowing the gap."
+  },
+  {
+    "id": "TRAUMA-031",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "Subcutaneous emphysema (crackling under the skin) in the neck/chest is most commonly associated with:",
+    "options": ["Hemothorax", "Pneumothorax / Pneumomediastinum", "Cardiac Tamponade", "Flail Chest"],
+    "correctAnswer": "Pneumothorax / Pneumomediastinum",
+    "explanation": "Air escaping from the lungs into the tissue causes subcutaneous emphysema."
+  },
+  {
+    "id": "TRAUMA-032",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A patient typically holds their arm in a locked position over their head (luxatio erecta) with which type of dislocation?",
+    "options": ["Anterior shoulder dislocation", "Posterior shoulder dislocation", "Inferior shoulder dislocation", "Elbow dislocation"],
+    "correctAnswer": "Inferior shoulder dislocation",
+    "explanation": "Inferior shoulder dislocation (Luxatio Erecta) presents with the arm locked upward."
+  },
+  {
+    "id": "TRAUMA-033",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Easy",
+    "question": "Epistaxis is the medical term for:",
+    "options": ["Vomiting blood", "Coughing blood", "Nosebleed", "Blood in the urine"],
+    "correctAnswer": "Nosebleed",
+    "explanation": "Epistaxis is a nosebleed."
+  },
+  {
+    "id": "TRAUMA-034",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "When assessing for pelvic stability, you should:",
+    "options": ["Rock the pelvis vigorously", "Apply gentle inward and downward pressure once", "Log roll the patient to check the back", "Ask the patient to walk"],
+    "correctAnswer": "Apply gentle inward and downward pressure once",
+    "explanation": "Pelvic exams should be gentle to avoid disrupting clots. Rocking is contraindicated."
+  },
+  {
+    "id": "TRAUMA-035",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Hard",
+    "question": "Which immunoglobulin is primarily responsible for the reaction seen in Anaphylactic Shock?",
+    "options": ["IgA", "IgG", "IgM", "IgE"],
+    "correctAnswer": "IgE",
+    "explanation": "IgE antibodies trigger mast cells to release histamine during an allergic/anaphylactic reaction."
+  },
+  {
+    "id": "TRAUMA-036",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "The optimal on-scene time for a critical trauma patient (Platinum 10) is:",
+    "options": ["Less than 5 minutes", "Less than 10 minutes", "15-20 minutes", "As long as it takes to stabilize"],
+    "correctAnswer": "Less than 10 minutes",
+    "explanation": "The goal for critical trauma is to limit scene time to 10 minutes (Platinum 10)."
+  },
+  {
+    "id": "TRAUMA-037",
+    "module": "Trauma",
+    "category": "Assessment",
+    "difficulty": "Medium",
+    "question": "Hyperresonance upon percussion of the chest indicates:",
+    "options": ["Fluid (Hemothorax)", "Air (Pneumothorax)", "Consolidation (Pneumonia)", "Normal lung tissue"],
+    "correctAnswer": "Air (Pneumothorax)",
+    "explanation": "Excess air (pneumothorax) rings hollow or 'hyperresonant'. Fluid/blood sounds dull."
+  },
+  {
+    "id": "TRAUMA-038",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "A 'blowout fracture' typically involves which structure?",
+    "options": ["The mandible", "The orbital floor", "The zygomatic arch", "The nasal bridge"],
+    "correctAnswer": "The orbital floor",
+    "explanation": "A blowout fracture occurs when the floor of the orbit breaks, often trapping eye muscles."
+  },
+  {
+    "id": "TRAUMA-039",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Hard",
+    "question": "Rhabdomyolysis (Crush Syndrome) can lead to renal failure due to the release of:",
+    "options": ["Hemoglobin", "Myoglobin", "Potassium", "Calcium"],
+    "correctAnswer": "Myoglobin",
+    "explanation": "Muscle breakdown releases Myoglobin, which clogs the renal tubules, causing kidney failure."
+  },
+  {
+    "id": "TRAUMA-040",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Medium",
+    "question": "An open neck wound carries the specific risk of:",
+    "options": ["Air embolism", "Tension pneumothorax", "Esophageal rupture", "Thyroid storm"],
+    "correctAnswer": "Air embolism",
+    "explanation": "Negative pressure in the jugular veins can suck air in, causing a fatal air embolism."
+  },
+  {
+    "id": "TRAUMA-041",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Medium",
+    "question": "In a patient with internal bleeding, what is typically the FIRST sign of shock?",
+    "options": ["Hypotension", "Tachycardia", "Anxiety/Restlessness", "Delayed capillary refill"],
+    "correctAnswer": "Anxiety/Restlessness",
+    "explanation": "Cerebral hypoxia causes anxiety/restlessness before vital signs significantly deteriorate."
+  },
+  {
+    "id": "TRAUMA-042",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Hard",
+    "question": "Which of the following is NOT a sign of a basilar skull fracture?",
+    "options": ["Battle's Sign", "Raccoon Eyes", "CSF otorrhea", "Dilated pupils"],
+    "correctAnswer": "Dilated pupils",
+    "explanation": "Battle's sign, Raccoon eyes, and CSF leakage are specific to basilar skull fractures. Dilated pupils indicate ICP/herniation but not specifically a fracture type."
+  },
+  {
+    "id": "TRAUMA-043",
+    "module": "Trauma",
+    "category": "Management",
+    "difficulty": "Medium",
+    "question": "Sodium metal burns are treated by covering the area with:",
+    "options": ["Water", "Oil", "Vinegar", "Dry gauze"],
+    "correctAnswer": "Oil",
+    "explanation": "Sodium reacts explosively with water. Oil is used to smother/isolate the metal."
+  },
+  {
+    "id": "TRAUMA-044",
+    "module": "Trauma",
+    "category": "Shock",
+    "difficulty": "Medium",
+    "question": "Distributive shock (like Septic or Neurogenic) is primarily a problem of:",
+    "options": ["Pump failure", "Fluid loss", "Vessel dilation (Container problem)", "Obstructive flow"],
+    "correctAnswer": "Vessel dilation (Container problem)",
+    "explanation": "Distributive shock involves massive vasodilation, making the vascular container too big for the fluid volume."
+  },
+  {
+    "id": "TRAUMA-045",
+    "module": "Trauma",
+    "category": "Injuries",
+    "difficulty": "Easy",
+    "question": "A Sprain involves injury to:",
+    "options": ["Ligaments", "Muscles", "Tendons", "Bones"],
+    "correctAnswer": "Ligaments",
+    "explanation": "A sprain is a ligament injury. A strain is a muscle/tendon injury."
+  },
+  // ==========================================
+  // === OPERATIONS MODULE ===
+  // ==========================================
+  {
+    "id": "OPS-001",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Which branch of civil law deals with non-criminal conflicts between two parties and is the branch under which paramedics are most likely to be sued?",
+    "options": ["Administrative law", "Tort law", "Constitutional law", "Criminal law"],
+    "correctAnswer": "Tort law",
+    "explanation": "Tort law is the branch of civil law involving conflicts between two parties, and it is the area where paramedics are most frequently sued."
+  },
+  {
+    "id": "OPS-002",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "The legal doctrine 'Res ipsa loquitur' translates to 'the thing speaks for itself.' In a lawsuit involving negligence, this doctrine:",
+    "options": ["Requires proof of intent to harm", "Shifts the burden of proof to the defendant, replacing reasonable doubt", "Protects the paramedic from liability", "Is only applicable in criminal court"],
+    "correctAnswer": "Shifts the burden of proof to the defendant, replacing reasonable doubt",
+    "explanation": "Res ipsa loquitur allows a plaintiff to prove negligence by circumstantial evidence when the accident was of a kind that doesn't occur without negligence."
+  },
+  {
+    "id": "OPS-003",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Easy",
+    "question": "Who defines the scope of practice for a paramedic?",
+    "options": ["The National Registry of EMTs", "The medical director", "The state legislature", "The EMS agency"],
+    "correctAnswer": "The state legislature",
+    "explanation": "The state legislature defines the scope of practice, which outlines what a paramedic is legally permitted to do."
+  },
+  {
+    "id": "OPS-004",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "To prove negligence, four components must be established. Which of the following is NOT one of these components?",
+    "options": ["Duty to act", "Breach of duty", "Malice", "Proximate cause"],
+    "correctAnswer": "Malice",
+    "explanation": "The four components of negligence are duty to act, breach of duty, actual damages, and proximate cause. Malice (intent to harm) is not required."
+  },
+  {
+    "id": "OPS-005",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Hard",
+    "question": "A paramedic fails to perform an act that is a legal requirement or official duty. This is termed:",
+    "options": ["Misfeasance", "Nonfeasance", "Malfeasance", "Gross negligence"],
+    "correctAnswer": "Nonfeasance",
+    "explanation": "Nonfeasance is the failure to perform an act that is required by law or duty."
+  },
+  {
+    "id": "OPS-006",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Hard",
+    "question": "A paramedic performs a lawful action but does so in an improper or illegal manner. This is known as:",
+    "options": ["Nonfeasance", "Malfeasance", "Misfeasance", "Liability"],
+    "correctAnswer": "Misfeasance",
+    "explanation": "Misfeasance is the improper performance of a lawful act."
+  },
+  {
+    "id": "OPS-007",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Hard",
+    "question": "Performing an act that is illegal or wrongful is defined as:",
+    "options": ["Misfeasance", "Malfeasance", "Nonfeasance", "Breach of duty"],
+    "correctAnswer": "Malfeasance",
+    "explanation": "Malfeasance is the commission of an act that is inherently wrong or illegal."
+  },
+  {
+    "id": "OPS-008",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Making a false verbal statement that damages a person's reputation is called:",
+    "options": ["Libel", "Slander", "Assault", "Battery"],
+    "correctAnswer": "Slander",
+    "explanation": "Slander is verbal defamation, whereas libel is written defamation."
+  },
+  {
+    "id": "OPS-009",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Writing a statement in a patient care report describing a patient as 'drunk' without medical confirmation could be considered:",
+    "options": ["Slander", "Libel", "Negligence", "Abandonment"],
+    "correctAnswer": "Libel",
+    "explanation": "Libel is written defamation. Stating a patient is 'drunk' is an opinion, not a medical fact, and can be damaging."
+  },
+  {
+    "id": "OPS-010",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Assault is defined as:",
+    "options": ["Unlawful touching of another person", "The threat of bodily harm that creates fear", "Restraining a patient against their will", "Abandoning a patient"],
+    "correctAnswer": "The threat of bodily harm that creates fear",
+    "explanation": "Assault is the threat or action that causes a person to fear imminent harm. Battery is the actual touching."
+  },
+  {
+    "id": "OPS-011",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Unlawfully touching a patient without their consent constitutes:",
+    "options": ["Assault", "Battery", "Negligence", "Kidnapping"],
+    "correctAnswer": "Battery",
+    "explanation": "Battery is the unlawful touching of another person without consent."
+  },
+  {
+    "id": "OPS-012",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Easy",
+    "question": "Termination of the paramedic-patient relationship without the patient's consent or transfer to an appropriate provider is called:",
+    "options": ["Negligence", "Malfeasance", "Abandonment", "Assault"],
+    "correctAnswer": "Abandonment",
+    "explanation": "Abandonment occurs when a provider stops care without the patient's consent or ensuring a transfer of care."
+  },
+  {
+    "id": "OPS-013",
+    "module": "Operations",
+    "category": "Ethics",
+    "difficulty": "Medium",
+    "question": "While morals refer to personal values, ethics refers to:",
+    "options": ["Religious beliefs", "Professional standards and practices", "Legal statutes", "Community norms"],
+    "correctAnswer": "Professional standards and practices",
+    "explanation": "Ethics refers to the rules or standards governing the conduct of a person or the members of a profession."
+  },
+  {
+    "id": "OPS-014",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Medium",
+    "question": "When approaching a scene involving a chemical spill, you should park your vehicle:",
+    "options": ["Downwind and downhill", "Upwind and uphill", "Downwind and uphill", "Upwind and downhill"],
+    "correctAnswer": "Upwind and uphill",
+    "explanation": "Parking upwind and uphill prevents exposure to fumes and runoff from the spill."
+  },
+  {
+    "id": "OPS-015",
+    "module": "Operations",
+    "category": "Communications",
+    "difficulty": "Hard",
+    "question": "Medical telemetry and many hospital communications utilize which frequency band?",
+    "options": ["VHF (Very High Frequency)", "UHF (Ultra High Frequency)", "800 MHz trunked", "Low band"],
+    "correctAnswer": "UHF (Ultra High Frequency)",
+    "explanation": "UHF (450-470 MHz) is commonly used for medical telemetry and hospital communications due to its ability to penetrate buildings."
+  },
+  {
+    "id": "OPS-016",
+    "module": "Operations",
+    "category": "Communications",
+    "difficulty": "Hard",
+    "question": "A device that receives a radio signal and retransmits it at a higher power to extend range is called a:",
+    "options": ["Decoder", "Repeater", "Encoder", "Multiplexer"],
+    "correctAnswer": "Repeater",
+    "explanation": "A repeater increases the range of a radio system by receiving a weak signal and retransmitting it at a higher power."
+  },
+  {
+    "id": "OPS-017",
+    "module": "Operations",
+    "category": "Communications",
+    "difficulty": "Hard",
+    "question": "A communication system that allows simultaneous transmission and reception (like a telephone) is known as:",
+    "options": ["Simplex", "Duplex", "Multiplex", "Trunked"],
+    "correctAnswer": "Duplex",
+    "explanation": "Duplex systems allow for simultaneous talk and listen capability."
+  },
+  {
+    "id": "OPS-018",
+    "module": "Operations",
+    "category": "Physics",
+    "difficulty": "Medium",
+    "question": "According to Boyle's Law, as a weather balloon ascends in altitude where pressure decreases, the volume of the balloon will:",
+    "options": ["Decrease", "Increase", "Remain the same", "Fluctuate"],
+    "correctAnswer": "Increase",
+    "explanation": "Boyle's Law states that pressure and volume are inversely related. As pressure decreases (ascent), volume increases."
+  },
+  {
+    "id": "OPS-019",
+    "module": "Operations",
+    "category": "Physics",
+    "difficulty": "Hard",
+    "question": "Hydrofluoric acid burns are unique because the acid leaches which electrolyte from the body?",
+    "options": ["Potassium", "Sodium", "Calcium", "Magnesium"],
+    "correctAnswer": "Calcium",
+    "explanation": "Hydrofluoric acid binds to calcium, causing severe hypocalcemia. Treatment involves calcium gluconate."
+  },
+  {
+    "id": "OPS-020",
+    "module": "Operations",
+    "category": "Physics",
+    "difficulty": "Medium",
+    "question": "According to the kinetic energy formula ($KE = 1/2 mass \u00d7 velocity^2$), which factor has the greatest impact on the energy of an object in motion?",
+    "options": ["Mass", "Velocity", "Gravity", "Friction"],
+    "correctAnswer": "Velocity",
+    "explanation": "Because velocity is squared in the formula, doubling the speed quadruples the kinetic energy."
+  },
+  {
+    "id": "OPS-021",
+    "module": "Operations",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "Peritoneal dialysis involves using the lining of the abdomen to filter waste. This process differs from hemodialysis because:",
+    "options": ["It removes blood from the body", "It uses an external machine to filter blood", "It uses the peritoneum as a semipermeable membrane", "It requires a permanent AV fistula"],
+    "correctAnswer": "It uses the peritoneum as a semipermeable membrane",
+    "explanation": "Peritoneal dialysis uses the body's own peritoneal membrane to filter fluids and wastes, unlike hemodialysis which uses an external machine."
+  },
+  {
+    "id": "OPS-022",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Easy",
+    "question": "When knocking on a door at a scene, where is the safest place to stand?",
+    "options": ["Directly in front of the door", "On the hinge side", "On the doorknob side", "Several feet back from the door"],
+    "correctAnswer": "On the doorknob side",
+    "explanation": "Standing on the doorknob side (opposite the hinges) prevents the door from being opened into you and offers better protection."
+  },
+  {
+    "id": "OPS-023",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Easy",
+    "question": "What should you do if a patient with a guide dog needs transport to the hospital?",
+    "options": ["Leave the dog with a neighbor", "Transport the dog with the patient", "Call animal control", "Secure the dog in the front seat"],
+    "correctAnswer": "Transport the dog with the patient",
+    "explanation": "Service animals should generally remain with the patient unless they pose a direct threat to safety."
+  },
+  {
+    "id": "OPS-024",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Medium",
+    "question": "When dealing with a potentially violent or mental health patient, you should position yourself:",
+    "options": ["Between the patient and the door", "By the door for a quick exit", "Close to the patient to restrain them", "Behind a piece of furniture"],
+    "correctAnswer": "By the door for a quick exit",
+    "explanation": "Always maintain a clear path of egress when dealing with potentially volatile patients."
+  },
+  {
+    "id": "OPS-025",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Medium",
+    "question": "What is the proper knot to use for a rescue anchor on a bight?",
+    "options": ["Square knot", "Bowline", "Figure 8 on a bight", "Clove hitch"],
+    "correctAnswer": "Figure 8 on a bight",
+    "explanation": "The Figure 8 on a bight is the standard, secure loop knot used in rescue operations."
+  },
+  {
+    "id": "OPS-026",
+    "module": "Operations",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "For predictable but delayed absorption of a medication, which route is preferred?",
+    "options": ["Intravenous (IV)", "Subcutaneous (SQ)", "Intramuscular (IM)", "Intraosseous (IO)"],
+    "correctAnswer": "Subcutaneous (SQ)",
+    "explanation": "Subcutaneous injection allows for slower, more sustained absorption compared to IM or IV routes."
+  },
+  {
+    "id": "OPS-027",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Medium",
+    "question": "You encounter a 12-year-old female armed with a knife. Your immediate action should be to:",
+    "options": ["Attempt to disarm her", "Restrain her", "Leave the scene until it is secured", "Reason with her"],
+    "correctAnswer": "Leave the scene until it is secured",
+    "explanation": "Safety is the priority. Do not approach an armed individual. Retreat and wait for law enforcement."
+  },
+  {
+    "id": "OPS-028",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Easy",
+    "question": "What is the general guideline regarding separating toddlers from their parents during assessment?",
+    "options": ["Always separate them to get accurate answers", "Do not separate them", "Separate only if the child is crying", "Separate for physical exam only"],
+    "correctAnswer": "Do not separate them",
+    "explanation": "Toddlers have high stranger anxiety. Keeping them with parents reduces stress and facilitates assessment."
+  },
+  {
+    "id": "OPS-029",
+    "module": "Operations",
+    "category": "Legal",
+    "difficulty": "Medium",
+    "question": "Legislation that governs the practice of medicine and authorizes medical directors to establish protocols is known as:",
+    "options": ["The EMS Systems Act", "The Good Samaritan Law", "The Medical Practice Act", "The Standard of Care"],
+    "correctAnswer": "The Medical Practice Act",
+    "explanation": "The Medical Practice Act defines the legal framework for the practice of medicine, including delegation of authority to paramedics."
+  },
+  {
+    "id": "OPS-030",
+    "module": "Operations",
+    "category": "Safety",
+    "difficulty": "Medium",
+    "question": "It is generally considered unsafe to walk in fast-moving water that is at least:",
+    "options": ["Ankle deep", "Knee deep", "Waist deep", "Chest deep"],
+    "correctAnswer": "Knee deep",
+    "explanation": "Fast-moving water that is knee-deep or higher can easily knock a rescuer off their feet."
+  },
+  // ==========================================
+  // === CARDIOLOGY MODULE ===
+  // ==========================================
+  {
+    "id": "CARD-001",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "The primary energy source for the sodium-potassium pump in cardiac cells is:",
+    "options": ["ADP", "ATP", "Glucose", "Calcium"],
+    "correctAnswer": "ATP",
+    "explanation": "The heart is a sodium-potassium pump which requires energy in the form of ATP created by aerobic metabolism."
+  },
+  {
+    "id": "CARD-002",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Cardiac Output (CO) is determined by multiplying Heart Rate (HR) by:",
+    "options": ["Blood Pressure", "Systemic Vascular Resistance", "Stroke Volume", "Ejection Fraction"],
+    "correctAnswer": "Stroke Volume",
+    "explanation": "Cardiac output (CO) = Stroke Volume (SV) X Heart Rate (HR)."
+  },
+  {
+    "id": "CARD-003",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "According to Starling's Law of the heart, an increase in end-diastolic volume (stretch) leads to:",
+    "options": ["A decrease in stroke volume", "A decrease in heart rate", "An increase in the force of contraction", "An increase in electrical conductivity"],
+    "correctAnswer": "An increase in the force of contraction",
+    "explanation": "Starling's law states that the greater the volume of blood entering the heart (stretch), the greater the force of contraction (snap back)."
+  },
+  {
+    "id": "CARD-004",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Coronary arteries fill with blood primarily during which phase of the cardiac cycle?",
+    "options": ["Systole", "Diastole", "Atrial contraction", "Ventricular ejection"],
+    "correctAnswer": "Diastole",
+    "explanation": "Coronary arteries fill during diastole."
+  },
+  {
+    "id": "CARD-005",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "The coronary veins empty into the coronary sinus during:",
+    "options": ["Diastole", "Systole", "Atrial kick", "Isovolumetric relaxation"],
+    "correctAnswer": "Systole",
+    "explanation": "Coronary veins empty into the coronary sinus during systole."
+  },
+  {
+    "id": "CARD-006",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "Which portion of the nervous system supplies the heart via the cardiac plexus?",
+    "options": ["Parasympathetic nervous system", "Sympathetic nervous system", "Somatic nervous system", "Central nervous system"],
+    "correctAnswer": "Sympathetic nervous system",
+    "explanation": "The cardiac plexus is the connection for the sympathetic nervous system."
+  },
+  {
+    "id": "CARD-007",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "The Vagus nerve provides which type of innervation to the heart?",
+    "options": ["Sympathetic", "Parasympathetic", "Somatic", "Sensory only"],
+    "correctAnswer": "Parasympathetic",
+    "explanation": "The Vagus nerve is the connection for the parasympathetic nervous system."
+  },
+  {
+    "id": "CARD-008",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "The innermost layer of a blood vessel is called the:",
+    "options": ["Tunica media", "Tunica adventitia", "Tunica intima", "Endothelium"],
+    "correctAnswer": "Tunica intima",
+    "explanation": "The tunica intima is the innermost layer of a blood vessel."
+  },
+  {
+    "id": "CARD-009",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Medium",
+    "question": "Poiseuille's Law states that doubling the diameter of a tube increases the flow rate by how many times?",
+    "options": ["2 times", "4 times", "8 times", "16 times"],
+    "correctAnswer": "16 times",
+    "explanation": "Poiseuille's Law states that if you double the diameter of a tube, you increase the flow rate by 16 times."
+  },
+  {
+    "id": "CARD-010",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Hard",
+    "question": "Prinzmetal's angina is caused by:",
+    "options": ["Atherosclerosis", "Coronary artery spasm", "Thrombosis", "Embolism"],
+    "correctAnswer": "Coronary artery spasm",
+    "explanation": "Prinzmetal's angina is caused by coronary artery vasospasm."
+  },
+  {
+    "id": "CARD-011",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "In lead I of the ECG, the positive electrode is placed on the:",
+    "options": ["Right arm", "Left arm", "Left leg", "Right leg"],
+    "correctAnswer": "Left arm",
+    "explanation": "In lead I, the positive electrode is on the left arm and the negative is on the right arm."
+  },
+  {
+    "id": "CARD-012",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "Lead II records the electrical difference between the:",
+    "options": ["Right arm and left arm", "Right arm and left leg", "Left arm and left leg", "Right arm and right leg"],
+    "correctAnswer": "Right arm and left leg",
+    "explanation": "Lead II records the difference between the Right Arm (-) and Left Leg (+)."
+  },
+  {
+    "id": "CARD-013",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "Which leads view the inferior wall of the heart?",
+    "options": ["I, aVL, V5, V6", "V1, V2", "II, III, aVF", "V3, V4"],
+    "correctAnswer": "II, III, aVF",
+    "explanation": "Leads II, III, and aVF view the inferior wall of the left ventricle."
+  },
+  {
+    "id": "CARD-014",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "Which leads view the lateral wall of the heart?",
+    "options": ["II, III, aVF", "I, aVL, V5, V6", "V1, V2", "V3, V4"],
+    "correctAnswer": "I, aVL, V5, V6",
+    "explanation": "Leads I, aVL, V5, and V6 view the lateral wall of the left ventricle."
+  },
+  {
+    "id": "CARD-015",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "Septal wall involvement is best seen in leads:",
+    "options": ["V1 and V2", "V3 and V4", "II and III", "I and aVL"],
+    "correctAnswer": "V1 and V2",
+    "explanation": "Leads V1 and V2 view the septal wall of the heart."
+  },
+  {
+    "id": "CARD-016",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "The anterior wall of the heart is best viewed in leads:",
+    "options": ["V1 and V2", "V3 and V4", "II, III, aVF", "I, aVL"],
+    "correctAnswer": "V3 and V4",
+    "explanation": "Leads V3 and V4 view the anterior wall of the left ventricle."
+  },
+  {
+    "id": "CARD-017",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "Pathological Q waves on an ECG indicate:",
+    "options": ["Acute ischemia", "Acute injury", "Tissue necrosis (infarction)", "Electrolyte imbalance"],
+    "correctAnswer": "Tissue necrosis (infarction)",
+    "explanation": "Pathological Q waves indicate tissue necrosis (dead tissue) or infarction."
+  },
+  {
+    "id": "CARD-018",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "ST-segment elevation is a sign of:",
+    "options": ["Ischemia", "Injury", "Infarction (completed)", "Hypertrophy"],
+    "correctAnswer": "Injury",
+    "explanation": "ST elevation indicates myocardial injury."
+  },
+  {
+    "id": "CARD-019",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "The absolute refractory period occurs during which part of the ECG cycle?",
+    "options": ["From the P wave to the QRS", "From the Q wave to the beginning of the T wave", "From the peak of the T wave to the end of the T wave", "During the TP segment"],
+    "correctAnswer": "From the Q wave to the beginning of the T wave",
+    "explanation": "The absolute refractory period is from the Q wave to the beginning of the T wave. No stimulus can cause a contraction during this time."
+  },
+  {
+    "id": "CARD-020",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "The relative refractory period corresponds to which part of the T wave?",
+    "options": ["The upstroke", "The peak", "The downslope", "The entire T wave"],
+    "correctAnswer": "The downslope",
+    "explanation": "The relative refractory period is the downslope of the T wave. A strong stimulus here can cause V-Fib (R on T phenomenon)."
+  },
+  {
+    "id": "CARD-021",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "A delta wave on an ECG is a hallmark sign of:",
+    "options": ["Lown-Ganong-Levine Syndrome", "Wolff-Parkinson-White (WPW) Syndrome", "Left Bundle Branch Block", "Right Bundle Branch Block"],
+    "correctAnswer": "Wolff-Parkinson-White (WPW) Syndrome",
+    "explanation": "A delta wave indicates pre-excitation associated with Wolff-Parkinson-White (WPW) syndrome."
+  },
+  {
+    "id": "CARD-022",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "Electrical alternans is specifically associated with:",
+    "options": ["Pericardial tamponade", "Tension pneumothorax", "Myocardial infarction", "Pulmonary embolism"],
+    "correctAnswer": "Pericardial tamponade",
+    "explanation": "Electrical alternans is associated with pericardial tamponade."
+  },
+  {
+    "id": "CARD-023",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "In a junctional rhythm, the P wave is:",
+    "options": ["Always upright", "Inverted, absent, or retrograde", "Always after the QRS", "Not related to the QRS"],
+    "correctAnswer": "Inverted, absent, or retrograde",
+    "explanation": "In junctional rhythms, the P wave is inverted, buried (absent), or retrograde (after the QRS) because the impulse originates in the AV junction."
+  },
+  {
+    "id": "CARD-024",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Hard",
+    "question": "Wenckebach (Second Degree Type I) heart block is characterized by:",
+    "options": ["A constant PR interval with dropped beats", "A PR interval that gets longer until a beat is dropped", "No relationship between P waves and QRS complexes", "A widened QRS complex"],
+    "correctAnswer": "A PR interval that gets longer until a beat is dropped",
+    "explanation": "Wenckebach is characterized by a PR interval that progressively lengthens until a QRS complex is dropped ('Longer, longer, longer, drop!')."
+  },
+  {
+    "id": "CARD-025",
+    "module": "Cardiology",
+    "category": "ECG",
+    "difficulty": "Medium",
+    "question": "If lead V1 shows a QRS complex that looks like 'thumbs up' (positive deflection), this suggests a:",
+    "options": ["Left Bundle Branch Block", "Right Bundle Branch Block", "Left Anterior Hemiblock", "Bifascicular Block"],
+    "correctAnswer": "Right Bundle Branch Block",
+    "explanation": "Turn the V1 signal sideways; if it is 'thumbs up' (positive), it is a Right Bundle Branch Block."
+  },
+  {
+    "id": "CARD-026",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "Low-dose dopamine (1-2 mcg/kg/min) primarily stimulates which receptors?",
+    "options": ["Alpha", "Beta-1", "Beta-2", "Dopaminergic"],
+    "correctAnswer": "Dopaminergic",
+    "explanation": "At low doses (1-2 mcg/kg/min), dopamine stimulates dopaminergic receptors, causing renal and mesenteric artery dilation."
+  },
+  {
+    "id": "CARD-027",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "Moderate-dose dopamine (2-10 mcg/kg/min) primarily stimulates:",
+    "options": ["Alpha receptors", "Beta-1 receptors", "Beta-2 receptors", "Dopaminergic receptors"],
+    "correctAnswer": "Beta-1 receptors",
+    "explanation": "At moderate doses (2-10 mcg/kg/min), dopamine primarily stimulates Beta-1 receptors, increasing heart rate and contractility."
+  },
+  {
+    "id": "CARD-028",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "High-dose dopamine (10-20 mcg/kg/min) primarily stimulates:",
+    "options": ["Alpha receptors", "Beta-1 receptors", "Beta-2 receptors", "Dopaminergic receptors"],
+    "correctAnswer": "Alpha receptors",
+    "explanation": "At high doses (10-20 mcg/kg/min), dopamine primarily stimulates Alpha receptors, causing vasoconstriction."
+  },
+  {
+    "id": "CARD-029",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "The therapeutic action of nitroglycerin in angina is primarily due to:",
+    "options": ["Increased heart rate", "Increased contractility", "Dilation of coronary arteries and reduction of preload", "Constriction of peripheral vessels"],
+    "correctAnswer": "Dilation of coronary arteries and reduction of preload",
+    "explanation": "Nitroglycerin works by dilating the coronary arteries and reducing preload (venous return)."
+  },
+  {
+    "id": "CARD-030",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "Digitalis toxicity typically presents with which visual disturbance?",
+    "options": ["Double vision", "Tunnel vision", "Yellow vision", "Red vision"],
+    "correctAnswer": "Yellow vision",
+    "explanation": "Digitalis toxicity is associated with yellow vision and heart blocks."
+  },
+  {
+    "id": "CARD-031",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "The first-line drug of choice for stable Supraventricular Tachycardia (SVT) is:",
+    "options": ["Lidocaine", "Amiodarone", "Adenosine", "Atropine"],
+    "correctAnswer": "Adenosine",
+    "explanation": "Adenosine is the drug of choice for stable SVT."
+  },
+  {
+    "id": "CARD-032",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "The pediatric dose for Atropine is:",
+    "options": ["0.01 mg/kg", "0.02 mg/kg", "0.1 mg/kg", "0.5 mg/kg"],
+    "correctAnswer": "0.02 mg/kg",
+    "explanation": "The pediatric dose for Atropine is 0.02 mg/kg."
+  },
+  {
+    "id": "CARD-033",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "Which drug is used to treat a beta-blocker overdose?",
+    "options": ["Naloxone", "Flumazenil", "Glucagon", "Atropine"],
+    "correctAnswer": "Glucagon",
+    "explanation": "Glucagon is used to treat beta-blocker overdoses."
+  },
+  {
+    "id": "CARD-034",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "Calcium channel blockers, such as verapamil or diltiazem, commonly cause which side effects?",
+    "options": ["Hypertension and tachycardia", "Hypotension and bradycardia", "Hypertension and bradycardia", "Hypotension and tachycardia"],
+    "correctAnswer": "Hypotension and bradycardia",
+    "explanation": "Calcium channel blockers cause hypotension and bradycardia."
+  },
+  {
+    "id": "CARD-035",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Medium",
+    "question": "Morphine is beneficial in pulmonary edema primarily because it causes:",
+    "options": ["Bronchodilation", "Venodilation", "Arterial constriction", "Increased heart rate"],
+    "correctAnswer": "Venodilation",
+    "explanation": "Morphine causes venodilation, which reduces preload and helps alleviate pulmonary edema."
+  },
+  {
+    "id": "CARD-036",
+    "module": "Cardiology",
+    "category": "Pharmacology",
+    "difficulty": "Hard",
+    "question": "Signs of lidocaine overdose include:",
+    "options": ["Bradycardia and hypotension", "Numbness, tingling, and seizures", "Tachycardia and hypertension", "Respiratory depression and pinpoint pupils"],
+    "correctAnswer": "Numbness, tingling, and seizures",
+    "explanation": "Lidocaine overdose is characterized by numbness, tingling, and seizures."
+  },
+  {
+    "id": "CARD-037",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Hard",
+    "question": "Beck's Triad, indicative of cardiac tamponade, consists of:",
+    "options": ["Hypertension, bradycardia, irregular respirations", "JVD, muffled heart tones, narrowing pulse pressure", "Hypotension, tachycardia, flat neck veins", "Tracheal deviation, absent breath sounds, hypotension"],
+    "correctAnswer": "JVD, muffled heart tones, narrowing pulse pressure",
+    "explanation": "Beck's Triad consists of JVD, muffled heart tones, and narrowing pulse pressure."
+  },
+  {
+    "id": "CARD-038",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Medium",
+    "question": "Cor Pulmonale is right-sided heart failure caused by:",
+    "options": ["Myocardial infarction", "Systemic hypertension", "Pulmonary hypertension", "Aortic stenosis"],
+    "correctAnswer": "Pulmonary hypertension",
+    "explanation": "Cor Pulmonale is right ventricular hypertrophy/failure secondary to pulmonary hypertension (often from COPD)."
+  },
+  {
+    "id": "CARD-039",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Hard",
+    "question": "Pulsus paradoxus is defined as a drop in systolic blood pressure of greater than 10 mmHg during:",
+    "options": ["Inhalation", "Exhalation", "Rest", "Exertion"],
+    "correctAnswer": "Inhalation",
+    "explanation": "Pulsus paradoxus is a decrease in systolic BP > 10 mmHg during inhalation."
+  },
+  {
+    "id": "CARD-040",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Medium",
+    "question": "A dissecting abdominal aortic aneurysm (AAA) is characterized by:",
+    "options": ["Crushing chest pain radiating to the jaw", "Tearing back/flank pain and an urge to defecate", "Right upper quadrant pain", "Epigastric pain radiating to the umbilicus"],
+    "correctAnswer": "Tearing back/flank pain and an urge to defecate",
+    "explanation": "AAA dissection often presents with tearing back or flank pain and an urge to defecate."
+  },
+  {
+    "id": "CARD-041",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Medium",
+    "question": "The number one cause of left-sided heart failure is:",
+    "options": ["Chronic hypertension", "Myocardial infarction (MI)", "Valve disease", "COPD"],
+    "correctAnswer": "Myocardial infarction (MI)",
+    "explanation": "The number one cause of left-sided failure is MI."
+  },
+  {
+    "id": "CARD-042",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Medium",
+    "question": "Right-sided heart failure typically presents with:",
+    "options": ["Pulmonary edema and dyspnea", "JVD and peripheral edema", "Chest pain and diaphoresis", "Hemoptysis and stridor"],
+    "correctAnswer": "JVD and peripheral edema",
+    "explanation": "Right-sided failure causes blood to back up into the body, leading to JVD and peripheral edema."
+  },
+  {
+    "id": "CARD-043",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Hard",
+    "question": "Stokes-Adams syndrome is characterized by syncope caused by:",
+    "options": ["Neurogenic shock", "Intermittent heart blocks", "Hypoglycemia", "Seizures"],
+    "correctAnswer": "Intermittent heart blocks",
+    "explanation": "Stokes-Adams syndrome involves syncope caused by transient heart blocks."
+  },
+  {
+    "id": "CARD-044",
+    "module": "Cardiology",
+    "category": "Pathology",
+    "difficulty": "Medium",
+    "question": "Claudication is leg pain during walking caused by:",
+    "options": ["Venous insufficiency", "Peripheral artery disease (PAD)", "Deep vein thrombosis", "Sciatica"],
+    "correctAnswer": "Peripheral artery disease (PAD)",
+    "explanation": "Claudication is pain caused by a decrease in arterial perfusion to the calf muscles (PAD) during exercise."
+  },
+  {
+    "id": "CARD-045",
+    "module": "Cardiology",
+    "category": "Physiology",
+    "difficulty": "Hard",
+    "question": "The atrial kick contributes approximately how much to cardiac output?",
+    "options": ["10-15%", "20-25%", "30-40%", "50%"],
+    "correctAnswer": "20-25%",
+    "explanation": "Atrial kick (atrial contraction) contributes 20-25% to cardiac output."
+  },
+  // ==========================================
+  // === MEDICAL MODULE ===
+  // ==========================================
+  {
+    "id": "MED-001",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "Acute Mountain Sickness (AMS) typically occurs at altitudes around:",
+    "options": ["4000 feet", "6600 feet", "8000 feet", "10000 feet"],
+    "correctAnswer": "6600 feet",
+    "explanation": "Acute Mountain Sickness (AMS) occurs around 6600 feet."
+  },
+  {
+    "id": "MED-002",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "Which of the following is considered the LEAST serious of the altitude-related illnesses?",
+    "options": ["High Altitude Pulmonary Edema (HAPE)", "High Altitude Cerebral Edema (HACE)", "Acute Mountain Sickness (AMS)", "Nitrogen Narcosis"],
+    "correctAnswer": "Acute Mountain Sickness (AMS)",
+    "explanation": "AMS is the least serious of the altitude related illnesses."
+  },
+  {
+    "id": "MED-003",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "High respirations in Acute Mountain Sickness (AMS) lead to which acid-base disturbance?",
+    "options": ["Respiratory acidosis", "Respiratory alkalosis", "Metabolic acidosis", "Metabolic alkalosis"],
+    "correctAnswer": "Respiratory alkalosis",
+    "explanation": "High respirations lead to respiratory alkalosis in AMS."
+  },
+  {
+    "id": "MED-004",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Hard",
+    "question": "Which medication combination is used to treat High Altitude Pulmonary Edema (HAPE) and High Altitude Cerebral Edema (HACE)?",
+    "options": ["Acetazolamide and nifedipine", "Furosemide and morphine", "Dexamethasone and oxygen", "Albuterol and ipratropium"],
+    "correctAnswer": "Acetazolamide and nifedipine",
+    "explanation": "HAPE and HACE are treated with acetazolamide and nifedipine."
+  },
+  {
+    "id": "MED-005",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Medium",
+    "question": "Death from Amanita phalloides mushroom poisoning is primarily caused by:",
+    "options": ["Renal failure", "Liver failure", "Respiratory arrest", "Cardiac arrest"],
+    "correctAnswer": "Liver failure",
+    "explanation": "Amanita phalloides (deathcap mushroom) causes death from liver failure."
+  },
+  {
+    "id": "MED-006",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Hard",
+    "question": "Nitrogen Narcosis is caused by an overabundance of nitrogen in the bloodstream affecting neurons, a phenomenon explained by:",
+    "options": ["Boyle's law", "Charles's law", "Henry's law", "Dalton's law"],
+    "correctAnswer": "Henry's law",
+    "explanation": "Nitrogen Narcosis is caused by nitrogen in the blood latching onto neurons, related to Henry's law."
+  },
+  {
+    "id": "MED-007",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "The definitive treatment for Nitrogen Narcosis is:",
+    "options": ["100% Oxygen", " rapid ascent", "Hyperbaric chamber", "Atropine"],
+    "correctAnswer": "Hyperbaric chamber",
+    "explanation": "Treatment for Nitrogen Narcosis involves a hyperbaric chamber."
+  },
+  {
+    "id": "MED-008",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "Caisson's disease, or 'The Bends', is based on which gas law?",
+    "options": ["Henry's law", "Boyle's law", "Charles's law", "Ideal Gas law"],
+    "correctAnswer": "Boyle's law",
+    "explanation": "Caisson's disease (The Bends) is based on Boyle's law."
+  },
+  {
+    "id": "MED-009",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "Decompression sickness ('The Bends') occurs during:",
+    "options": ["Descent", "Ascent", "Time at bottom", "Surface intervals"],
+    "correctAnswer": "Ascent",
+    "explanation": "Decompression sickness occurs on ascent."
+  },
+  {
+    "id": "MED-010",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "A key sign of heat stroke, differentiating it from heat exhaustion, is:",
+    "options": ["Profuse sweating", "Hot, dry skin", "Muscle cramps", "Pale, moist skin"],
+    "correctAnswer": "Hot, dry skin",
+    "explanation": "In heat stroke, the body has lost the ability to regulate temperature, resulting in hot, dry skin."
+  },
+  {
+    "id": "MED-011",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Medium",
+    "question": "Treatment for heat stroke focuses on:",
+    "options": ["Rehydration", "Electrolyte replacement", "Rapid cooling", "Warm IV fluids"],
+    "correctAnswer": "Rapid cooling",
+    "explanation": "Treatment for heat stroke is rapid cooling."
+  },
+  {
+    "id": "MED-012",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Easy",
+    "question": "Which spider bite is characterized by a dull ache, muscle spasms, and nausea/vomiting?",
+    "options": ["Brown Recluse", "Black Widow", "Hobo Spider", "Wolf Spider"],
+    "correctAnswer": "Black Widow",
+    "explanation": "Black Widow bites cause dull aches, muscle spasms, and N/V."
+  },
+  {
+    "id": "MED-013",
+    "module": "Medical",
+    "category": "Environmental",
+    "difficulty": "Easy",
+    "question": "Which spider bite typically results in a painless bite that later becomes an ulcer?",
+    "options": ["Black Widow", "Brown Recluse", "Tarantula", "Jumping Spider"],
+    "correctAnswer": "Brown Recluse",
+    "explanation": "Brown Recluse bites are painless initially but later become an ulcer."
+  },
+  {
+    "id": "MED-014",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Medium",
+    "question": "Lyme disease is characterized by a specific skin presentation known as:",
+    "options": ["Hives", "Petechiae", "Bull's eye rash", "Purpura"],
+    "correctAnswer": "Bull's eye rash",
+    "explanation": "Lyme disease presents with a Bull's eye rash."
+  },
+  {
+    "id": "MED-015",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Hard",
+    "question": "Organophosphates (insecticides) cause an overstimulation of which nervous system?",
+    "options": ["Sympathetic", "Parasympathetic", "Somatic", "Central"],
+    "correctAnswer": "Parasympathetic",
+    "explanation": "Organophosphates cause parasympathetic overstimulation."
+  },
+  {
+    "id": "MED-016",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Medium",
+    "question": "The mnemonic SLUDGE-M is associated with poisoning from:",
+    "options": ["Cyanide", "Carbon Monoxide", "Organophosphates", "Salicylates"],
+    "correctAnswer": "Organophosphates",
+    "explanation": "SLUDGE-M is the mnemonic for organophosphate poisoning signs."
+  },
+  {
+    "id": "MED-017",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Hard",
+    "question": "Treatment for organophosphate poisoning involves the administration of:",
+    "options": ["Atropine and Pralidoxime (2-PAM)", "Naloxone", "Flumazenil", "Sodium Bicarbonate"],
+    "correctAnswer": "Atropine and Pralidoxime (2-PAM)",
+    "explanation": "Treatment involves Atropine (to dry secretions) and 2-PAM."
+  },
+  {
+    "id": "MED-018",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Hard",
+    "question": "A classic sign of aspirin (salicylate) overdose is:",
+    "options": ["Visual disturbances", "Tinnitus (ringing in the ears)", "Muscle rigidity", "Dry skin"],
+    "correctAnswer": "Tinnitus (ringing in the ears)",
+    "explanation": "Aspirin overdose is associated with tinnitus (ringing in the ears)."
+  },
+  {
+    "id": "MED-019",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Medium",
+    "question": "Carbon monoxide poisoning is often indicated by:",
+    "options": ["Cyanosis", "Cherry red skin", "Jaundice", "Pallor"],
+    "correctAnswer": "Cherry red skin",
+    "explanation": "Cherry red skin is a sign of carbon monoxide poisoning."
+  },
+  {
+    "id": "MED-020",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Medium",
+    "question": "The smell of bitter almonds is characteristic of poisoning by:",
+    "options": ["Carbon Monoxide", "Organophosphates", "Cyanide", "Arsenic"],
+    "correctAnswer": "Cyanide",
+    "explanation": "Cyanide poisoning smells like bitter almonds."
+  },
+  {
+    "id": "MED-021",
+    "module": "Medical",
+    "category": "Toxicology",
+    "difficulty": "Easy",
+    "question": "Pinpoint pupils (miosis) are a classic sign of overdose with:",
+    "options": ["Stimulants", "Hallucinogens", "Narcotics/Opiates", "Antidepressants"],
+    "correctAnswer": "Narcotics/Opiates",
+    "explanation": "Narcotics/Opiates cause pinpoint pupils."
+  },
+  {
+    "id": "MED-022",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Hard",
+    "question": "Addison's disease is characterized by:",
+    "options": ["Hyperadrenalism", "Adrenal insufficiency", "Hyperthyroidism", "Hypothyroidism"],
+    "correctAnswer": "Adrenal insufficiency",
+    "explanation": "Addison's disease is adrenal insufficiency."
+  },
+  {
+    "id": "MED-023",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Hard",
+    "question": "Cushing's syndrome is characterized by:",
+    "options": ["Low cortisol levels", "Excess cortisol", "Low thyroid hormone", "Excess thyroid hormone"],
+    "correctAnswer": "Excess cortisol",
+    "explanation": "Cushing's syndrome is characterized by excess cortisol."
+  },
+  {
+    "id": "MED-024",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "Physical signs of Cushing's syndrome include:",
+    "options": ["Weight loss and hypotension", "Moon face and buffalo hump", "Bronze skin and fatigue", "Exophthalmos and goiter"],
+    "correctAnswer": "Moon face and buffalo hump",
+    "explanation": "Cushing's syndrome presents with moon face and buffalo hump."
+  },
+  {
+    "id": "MED-025",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "Graves' disease is a common cause of:",
+    "options": ["Hypothyroidism", "Hyperthyroidism", "Adrenal insufficiency", "Diabetes"],
+    "correctAnswer": "Hyperthyroidism",
+    "explanation": "Graves' disease causes hyperthyroidism (thyrotoxicosis)."
+  },
+  {
+    "id": "MED-026",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "Signs of Graves' disease include:",
+    "options": ["Weight gain and cold intolerance", "Exophthalmos (bulging eyes) and heat intolerance", "Moon face and buffalo hump", "Bronze skin and hypotension"],
+    "correctAnswer": "Exophthalmos (bulging eyes) and heat intolerance",
+    "explanation": "Graves' disease signs include bulging eyes (exophthalmos) and heat intolerance."
+  },
+  {
+    "id": "MED-027",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "Myxedema is a severe form of:",
+    "options": ["Hyperthyroidism", "Hypothyroidism", "Hyperadrenalism", "Hypoadrenalism"],
+    "correctAnswer": "Hypothyroidism",
+    "explanation": "Myxedema is severe hypothyroidism."
+  },
+  {
+    "id": "MED-028",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Medium",
+    "question": "Kussmaul respirations are a compensatory mechanism for:",
+    "options": ["Metabolic alkalosis", "Metabolic acidosis (DKA)", "Respiratory acidosis", "Respiratory alkalosis"],
+    "correctAnswer": "Metabolic acidosis (DKA)",
+    "explanation": "Kussmaul respirations (deep, rapid breathing) blow off CO2 to correct metabolic acidosis in DKA."
+  },
+  {
+    "id": "MED-029",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Hard",
+    "question": "Hyperosmolar Hyperglycemic Nonketotic Syndrome (HHNS) is typically seen in:",
+    "options": ["Type I Diabetics", "Type II Diabetics", "Patients with adrenal insufficiency", "Patients with thyroid storm"],
+    "correctAnswer": "Type II Diabetics",
+    "explanation": "HHNS is typically seen in Type II diabetics."
+  },
+  {
+    "id": "MED-030",
+    "module": "Medical",
+    "category": "Endocrine",
+    "difficulty": "Hard",
+    "question": "Unlike DKA, patients with HHNS do not typically present with:",
+    "options": ["Dehydration", "Hyperglycemia", "Ketosis/Fruity breath", "Altered mental status"],
+    "correctAnswer": "Ketosis/Fruity breath",
+    "explanation": "In HHNS, there is enough insulin to prevent ketosis, so fruity breath is absent."
+  },
+  {
+    "id": "MED-031",
+    "module": "Medical",
+    "category": "Neurology",
+    "difficulty": "Medium",
+    "question": "The Cincinnati Prehospital Stroke Scale evaluates which three signs?",
+    "options": ["Facial droop, arm drift, abnormal speech", "Grip strength, pupillary response, speech", "Facial droop, leg drift, memory", "Balance, eyes, speech"],
+    "correctAnswer": "Facial droop, arm drift, abnormal speech",
+    "explanation": "The CPSS evaluates facial droop, arm drift, and abnormal speech."
+  },
+  {
+    "id": "MED-032",
+    "module": "Medical",
+    "category": "Neurology",
+    "difficulty": "Medium",
+    "question": "A Transient Ischemic Attack (TIA) is characterized by stroke-like symptoms that resolve within:",
+    "options": ["1 hour", "12 hours", "24 hours", "48 hours"],
+    "correctAnswer": "24 hours",
+    "explanation": "TIA symptoms resolve within 24 hours."
+  },
+  {
+    "id": "MED-033",
+    "module": "Medical",
+    "category": "Neurology",
+    "difficulty": "Hard",
+    "question": "Status epilepticus is defined as a seizure lasting longer than:",
+    "options": ["2 minutes", "5 minutes", "10 minutes", "15 minutes"],
+    "correctAnswer": "5 minutes",
+    "explanation": "Status epilepticus is defined as a seizure lasting longer than 5 minutes."
+  },
+  {
+    "id": "MED-034",
+    "module": "Medical",
+    "category": "Neurology",
+    "difficulty": "Medium",
+    "question": "The phase following a seizure characterized by confusion or lethargy is called the:",
+    "options": ["Tonic phase", "Clonic phase", "Post-ictal phase", "Aura phase"],
+    "correctAnswer": "Post-ictal phase",
+    "explanation": "The post-ictal phase follows a seizure."
+  },
+  {
+    "id": "MED-035",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Esophageal varices are most commonly caused by:",
+    "options": ["Alcoholism/Portal hypertension", "Smoking", "Trauma", "Genetic defects"],
+    "correctAnswer": "Alcoholism/Portal hypertension",
+    "explanation": "Esophageal varices are caused by portal hypertension, often due to alcoholism/liver cirrhosis."
+  },
+  {
+    "id": "MED-036",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "A Mallory-Weiss tear is a laceration of the esophagus caused by:",
+    "options": ["Swallowing a foreign object", "Excessive vomiting", "Chemical ingestion", "Trauma"],
+    "correctAnswer": "Excessive vomiting",
+    "explanation": "Mallory-Weiss tears are caused by excessive vomiting."
+  },
+  {
+    "id": "MED-037",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Visceral pain is typically described as:",
+    "options": ["Sharp and localized", "Dull, achy, and poorly localized", "Tearing", "Burning"],
+    "correctAnswer": "Dull, achy, and poorly localized",
+    "explanation": "Visceral pain comes from organs and is dull, achy, and poorly localized."
+  },
+  {
+    "id": "MED-038",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Hard",
+    "question": "When assessing a dialysis fistula, you should check for a 'thrill', which is:",
+    "options": ["A pulsating mass", "A vibration felt on palpation", "A sound heard on auscultation", "A visible bulge"],
+    "correctAnswer": "A vibration felt on palpation",
+    "explanation": "A thrill is a vibration felt over the fistula."
+  },
+  {
+    "id": "MED-039",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Hard",
+    "question": "Melena refers to:",
+    "options": ["Bright red blood in stool", "Dark, tarry stool", "Vomiting blood", "Blood in urine"],
+    "correctAnswer": "Dark, tarry stool",
+    "explanation": "Melena is dark, tarry stool indicating an upper GI bleed."
+  },
+  {
+    "id": "MED-040",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Pain at McBurney's point is associated with:",
+    "options": ["Cholecystitis", "Pancreatitis", "Appendicitis", "Diverticulitis"],
+    "correctAnswer": "Appendicitis",
+    "explanation": "McBurney's point tenderness indicates appendicitis."
+  },
+  {
+    "id": "MED-041",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Cholecystitis (gallbladder inflammation) typically presents with pain in the:",
+    "options": ["Left Upper Quadrant", "Right Upper Quadrant", "Right Lower Quadrant", "Left Lower Quadrant"],
+    "correctAnswer": "Right Upper Quadrant",
+    "explanation": "Cholecystitis causes pain in the Right Upper Quadrant (RUQ)."
+  },
+  {
+    "id": "MED-042",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Patients with kidney stones (renal colic) often present as:",
+    "options": ["Lying very still", "Restless/pacing", "Unconscious", "Hyperventilating"],
+    "correctAnswer": "Restless/pacing",
+    "explanation": "Patients with kidney stones are often restless and unable to find a comfortable position."
+  },
+  {
+    "id": "MED-043",
+    "module": "Medical",
+    "category": "Abdominal",
+    "difficulty": "Medium",
+    "question": "Pancreatitis pain is typically described as boring through to the:",
+    "options": ["Shoulder", "Back", "Groin", "Chest"],
+    "correctAnswer": "Back",
+    "explanation": "Pancreatitis pain radiates to the back."
+  },
+  {
+    "id": "MED-044",
+    "module": "Medical",
+    "category": "Hematology",
+    "difficulty": "Hard",
+    "question": "Sickle cell crisis is caused by:",
+    "options": ["Excessive bleeding", "Vaso-occlusion (clumping of cells)", "Infection of red blood cells", "Low iron levels"],
+    "correctAnswer": "Vaso-occlusion (clumping of cells)",
+    "explanation": "Sickle cell crisis is caused by vaso-occlusion due to misshapen cells."
+  },
+  {
+    "id": "MED-045",
+    "module": "Medical",
+    "category": "Hematology",
+    "difficulty": "Hard",
+    "question": "Polycythemia is defined as:",
+    "options": ["Low red blood cell count", "Excess production of red blood cells", "Low platelet count", "High white blood cell count"],
+    "correctAnswer": "Excess production of red blood cells",
+    "explanation": "Polycythemia is the excess production of red blood cells."
+  },
+  {
+    "id": "MED-046",
+    "module": "Medical",
+    "category": "Neurology",
+    "difficulty": "Medium",
+    "question": "Brudzinski's sign is suggestive of:",
+    "options": ["Stroke", "Meningitis", "Seizure", "Head trauma"],
+    "correctAnswer": "Meningitis",
+    "explanation": "Brudzinski's sign (neck flexion causing hip/knee flexion) suggests meningitis."
+  },
+  {
+    "id": "MED-047",
+    "module": "Medical",
+    "category": "Infectious Disease",
+    "difficulty": "Medium",
+    "question": "Kernig's sign involves pain or resistance when:",
+    "options": ["Flexing the neck", "Extending the leg", "Palpating the abdomen", "Rotating the head"],
+    "correctAnswer": "Extending the leg",
+    "explanation": "Kernig's sign involves pain/resistance upon leg extension, indicating meningitis."
+  },
+  {
+    "id": "MED-048",
+    "module": "Medical",
+    "category": "OB/GYN",
+    "difficulty": "Hard",
+    "question": "Magnesium Sulfate is used to treat eclampsia. The typical dose is:",
+    "options": ["1 g over 10 min", "2 g over 10 min", "4 g over 10 min", "6 g over 10 min"],
+    "correctAnswer": "4 g over 10 min",
+    "explanation": "The dose for eclampsia is 4 g over 10 min."
+  },
+  {
+    "id": "MED-049",
+    "module": "Medical",
+    "category": "OB/GYN",
+    "difficulty": "Medium",
+    "question": "Placenta previa is characterized by:",
+    "options": ["Painful bleeding", "Painless bright red bleeding", "Abdominal cramping without bleeding", "Fetal distress only"],
+    "correctAnswer": "Painless bright red bleeding",
+    "explanation": "Placenta previa presents with painless bright red bleeding."
+  },
+  {
+    "id": "MED-050",
+    "module": "Medical",
+    "category": "OB/GYN",
+    "difficulty": "Medium",
+    "question": "Abruptio placentae is characterized by:",
+    "options": ["Painless bleeding", "Tearing abdominal pain and dark/no bleeding", "Fever and chills", "Hypotension only"],
+    "correctAnswer": "Tearing abdominal pain and dark/no bleeding",
+    "explanation": "Abruptio placentae presents with tearing pain and often dark or no visible bleeding."
+  },
+  // ==========================================
+  // === CLINICAL JUDGMENT (ORDERING CONVERTED) ===
+  // ==========================================
+  {
+    "id": "CLJMNT-001",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Hard",
+    "question": "A patient with blunt chest trauma presents with hypotension, JVD, and muffled heart tones. You suspect cardiac tamponade. Which finding would help differentiate this from a tension pneumothorax?",
+    "options": ["Narrowing pulse pressure", "Tracheal deviation", "Absent breath sounds", "Subcutaneous emphysema"],
+    "correctAnswer": "Narrowing pulse pressure",
+    "explanation": "Cardiac tamponade presents with Beck's Triad (JVD, muffled tones, narrowing pulse pressure). Tension pneumothorax presents with JVD, hypotension, but also tracheal deviation and absent breath sounds, which are not typical of tamponade."
+  },
+  {
+    "id": "CLJMNT-002",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "You are treating a patient with suspected organophosphate poisoning who is seizing. You have administered Atropine. What medication should be considered next to address the underlying enzyme inhibition?",
+    "options": ["Naloxone", "Pralidoxime (2-PAM)", "Flumazenil", "Sodium Bicarbonate"],
+    "correctAnswer": "Pralidoxime (2-PAM)",
+    "explanation": "Atropine manages the muscarinic effects (drying secretions), but Pralidoxime (2-PAM) is needed to reactivate cholinesterase and treat the nicotinic effects (muscle weakness/paralysis)."
+  },
+  {
+    "id": "CLJMNT-003",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Hard",
+    "question": "A patient presents with chest pain and a 12-lead ECG showing ST elevation in leads II, III, and aVF. The patient is hypotensive. Which medication is contraindicated?",
+    "options": ["Aspirin", "Fentanyl", "Nitroglycerin", "Normal Saline"],
+    "correctAnswer": "Nitroglycerin",
+    "explanation": "Inferior wall MIs (II, III, aVF) often involve the right ventricle, which is preload-dependent. Nitroglycerin reduces preload and can cause severe hypotension in these patients."
+  },
+  {
+    "id": "CLJMNT-004",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "A child presents with a high fever, drooling, and distress. You suspect epiglottitis. What is your priority action?",
+    "options": ["Visualize the airway with a laryngoscope", "Keep the child calm and transport in a position of comfort", "Attempt immediate intubation", "Insert an OPA"],
+    "correctAnswer": "Keep the child calm and transport in a position of comfort",
+    "explanation": "Agitating a child with epiglottitis can cause laryngospasm and total airway obstruction. Visualization and invasive procedures should be avoided unless the airway is already lost."
+  },
+  {
+    "id": "CLJMNT-005",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A trauma patient has cool, clammy skin above the nipple line but warm, dry skin below. Their heart rate is 54 and BP is 80/40. What type of shock do you suspect?",
+    "options": ["Hypovolemic", "Septic", "Neurogenic", "Cardiogenic"],
+    "correctAnswer": "Neurogenic",
+    "explanation": "Neurogenic shock causes loss of sympathetic tone below the injury, leading to vasodilation (warm/dry skin) and preventing tachycardia (bradycardia), unlike hypovolemic shock."
+  },
+  {
+    "id": "CLJMNT-006",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A diabetic patient is unconscious with deep, rapid respirations and a fruity odor on their breath. You suspect DKA. What is the physiological purpose of their breathing pattern?",
+    "options": ["To increase oxygen saturation", "To blow off excess CO2 to correct metabolic acidosis", "To retain heat", "To correct respiratory alkalosis"],
+    "correctAnswer": "To blow off excess CO2 to correct metabolic acidosis",
+    "explanation": "Kussmaul respirations are a compensatory mechanism to expel CO2 (an acid) to counteract the metabolic acidosis caused by ketones."
+  },
+  {
+    "id": "CLJMNT-007",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Hard",
+    "question": "You are treating a patient with a wide-complex tachycardia who is stable. You suspect VT. If the rhythm was actually SVT with aberrancy (a conduction block), which drug would be safe for both, but Adenosine might be risky for VT?",
+    "options": ["Amiodarone", "Adenosine", "Diltiazem", "Digoxin"],
+    "correctAnswer": "Amiodarone",
+    "explanation": "Amiodarone is generally safe for both VT and SVT with aberrancy. Adenosine is the first line for SVT but can sometimes cause deterioration in VT (though guidelines vary, Amiodarone is the broader antiarrhythmic)."
+  },
+  {
+    "id": "CLJMNT-008",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A patient has a suspected pelvic fracture and is hypotensive. Which assessment technique should you AVOID?",
+    "options": ["Visual inspection", "Palpation of the femoral pulses", "Rocking the pelvis", "Gentle inward compression of the iliac crests"],
+    "correctAnswer": "Rocking the pelvis",
+    "explanation": "Rocking the pelvis can disrupt clots and worsen internal bleeding. Assessment should be gentle and performed only once."
+  },
+  {
+    "id": "CLJMNT-009",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A scuba diver surfaces and immediately complains of joint pain and difficulty breathing. You suspect decompression sickness. What is the definitive treatment?",
+    "options": ["High flow oxygen", "IV fluids", "Hyperbaric chamber", "Left lateral recumbent positioning"],
+    "correctAnswer": "Hyperbaric chamber",
+    "explanation": "While O2 and fluids are supportive, the definitive treatment to re-dissolve nitrogen bubbles is recompression in a hyperbaric chamber."
+  },
+  {
+    "id": "CLJMNT-010",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "A patient with a history of COPD presents with right-sided heart failure (Cor Pulmonale). Which finding would you expect?",
+    "options": ["Flash pulmonary edema", "JVD and peripheral edema", "S3 gallop", "Crackles in all fields"],
+    "correctAnswer": "JVD and peripheral edema",
+    "explanation": "Right-sided failure causes backup into the systemic circulation, leading to JVD and pedal edema, unlike left-sided failure which causes pulmonary edema."
+  },
+  {
+    "id": "CLJMNT-011",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "You respond to a chemical spill. Patients are staggering out of the building. What is your FIRST priority?",
+    "options": ["Triage the patients", "Begin decontamination", "Park upwind and uphill", "Administer oxygen"],
+    "correctAnswer": "Park upwind and uphill",
+    "explanation": "Scene safety is the first priority. You must park safely (upwind/uphill) before attempting any patient care or decontamination."
+  },
+  {
+    "id": "CLJMNT-012",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Hard",
+    "question": "A pregnant patient in her third trimester presents with a seizure. You suspect Eclampsia. What is the correct magnesium sulfate dose?",
+    "options": ["2g IV", "4g IV", "1g IM", "500mg IV"],
+    "correctAnswer": "4g IV",
+    "explanation": "The standard dose for eclamptic seizures is 4 grams of Magnesium Sulfate over 10 minutes."
+  },
+  {
+    "id": "CLJMNT-013",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "A patient with a history of asthma presents with 'silent chest' (no breath sounds). What does this indicate?",
+    "options": ["Resolution of the attack", "Severe bronchoconstriction and imminent respiratory arrest", "Pneumothorax", "Mild exacerbation"],
+    "correctAnswer": "Severe bronchoconstriction and imminent respiratory arrest",
+    "explanation": "'Silent chest' in an asthmatic indicates so little air movement that wheezing cannot be generated. It is a sign of imminent failure."
+  },
+  {
+    "id": "CLJMNT-014",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A 7-year-old child has fallen. He is apathetic and not crying despite an obvious deformity to his arm. What should you suspect?",
+    "options": ["Shock", "Head injury", "Child abuse", "Hypoglycemia"],
+    "correctAnswer": "Child abuse",
+    "explanation": "The Pearls state: 'If an injured child is apathetic and does not cry, think child abuse - when hurt, kids should cry'."
+  },
+  {
+    "id": "CLJMNT-015",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient presents with fever, nuchal rigidity, and a petechial rash. What is your most immediate concern for your own safety?",
+    "options": ["Needlestick injury", "Airborne/Droplet transmission of Meningitis", "Bloodborne pathogens", "Contact dermatitis"],
+    "correctAnswer": "Airborne/Droplet transmission of Meningitis",
+    "explanation": "These signs suggest Meningococcal Meningitis, which is highly contagious via droplets. Proper PPE (mask) is critical."
+  },
+  {
+    "id": "CLJMNT-016",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "A patient with a history of hypertension presents with a 'tearing' pain between the shoulder blades. BP is unequal in the arms. You suspect:",
+    "options": ["Myocardial Infarction", "Pulmonary Embolism", "Aortic Dissection", "Pneumothorax"],
+    "correctAnswer": "Aortic Dissection",
+    "explanation": "Tearing pain to the back and unequal pulses/BP are hallmark signs of a thoracic aortic dissection."
+  },
+  {
+    "id": "CLJMNT-017",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Hard",
+    "question": "A patient with a head injury has a BP of 180/100, HR of 50, and irregular respirations. This pattern is known as:",
+    "options": ["Beck's Triad", "Cushing's Reflex", "Shock Index", "Horner's Syndrome"],
+    "correctAnswer": "Cushing's Reflex",
+    "explanation": "Cushing's Reflex (HTN, Bradycardia, Irregular Respirations) indicates increased intracranial pressure (ICP)."
+  },
+  {
+    "id": "CLJMNT-018",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "You are treating a patient with a tricyclic antidepressant (Amitriptyline) overdose. The ECG shows wide QRS complexes. What is the treatment of choice to narrow the QRS?",
+    "options": ["Lidocaine", "Amiodarone", "Sodium Bicarbonate", "Magnesium Sulfate"],
+    "correctAnswer": "Sodium Bicarbonate",
+    "explanation": "Sodium Bicarbonate is the antidote for the cardiac toxicity (sodium channel blocking) of TCA overdoses."
+  },
+  {
+    "id": "CLJMNT-019",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "You are ventilating a patient and notice increasing resistance. The patient has distended neck veins and tracheal deviation. You suspect a tension pneumothorax. What is your immediate action?",
+    "options": ["Needle Decompression", "Increase PEEP", "Suction the airway", "Administer a bronchodilator"],
+    "correctAnswer": "Needle Decompression",
+    "explanation": "Signs of tension pneumothorax (hemodynamic compromise, deviation) require immediate decompression, not just supportive care."
+  },
+  {
+    "id": "CLJMNT-020",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A patient with a chemical burn from dry lime powder should be managed by:",
+    "options": ["Flushing immediately with water", "Brushing off the powder before flushing", "Applying a neutralizing acid", "Covering with an occlusive dressing"],
+    "correctAnswer": "Brushing off the powder before flushing",
+    "explanation": "Water can activate dry chemicals like lime, causing heat. Brush first, then flush with copious water."
+  },
+  {
+    "id": "CLJMNT-021",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient presents with left shoulder pain (Kehr's sign) after a fall. You should strongly suspect injury to the:",
+    "options": ["Liver", "Stomach", "Spleen", "Kidney"],
+    "correctAnswer": "Spleen",
+    "explanation": "Kehr's sign is referred pain to the left shoulder due to diaphragmatic irritation, commonly from a ruptured spleen."
+  },
+  {
+    "id": "CLJMNT-022",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Hard",
+    "question": "A patient on digitalis presents with nausea, vomiting, and 'yellow vision'. Their ECG shows a heart block. You suspect:",
+    "options": ["Digitalis toxicity", "Hyperkalemia", "Stroke", "Retinal detachment"],
+    "correctAnswer": "Digitalis toxicity",
+    "explanation": "Yellow/green vision (xanthopsia) and arrhythmias are classic signs of Digoxin toxicity."
+  },
+  {
+    "id": "CLJMNT-023",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A patient has an open chest wound that is bubbling. You apply an occlusive dressing. Minutes later, the patient becomes hypotensive and more short of breath. You should:",
+    "options": ["Perform needle decompression immediately", "Burp (lift) the dressing to release air", "Intubate the patient", "Add more layers to the dressing"],
+    "correctAnswer": "Burp (lift) the dressing to release air",
+    "explanation": "The occlusive dressing may have created a tension pneumothorax by trapping air. 'Burping' the dressing is the first, least invasive fix."
+  },
+  {
+    "id": "CLJMNT-024",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A 22-year-old female presents with lower abdominal pain and a 'shuffling' gait. You suspect Pelvic Inflammatory Disease (PID). This gait is used to:",
+    "options": ["Relieve back pressure", "Minimize abdominal jarring/pain", "Prevent syncope", "Mask the pain"],
+    "correctAnswer": "Minimize abdominal jarring/pain",
+    "explanation": "The 'PID Shuffle' minimizes movement of the inflamed pelvic organs."
+  },
+  {
+    "id": "CLJMNT-025",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Hard",
+    "question": "You are treating a patient with symptomatic bradycardia. You try Atropine but it is ineffective. The patient has a history of heart transplant. Why did Atropine fail?",
+    "options": ["Transplanted hearts are denervated (no Vagus nerve connection)", "Atropine dose was too low", "The patient is on beta blockers", "Transplanted hearts do not respond to drugs"],
+    "correctAnswer": "Transplanted hearts are denervated (no Vagus nerve connection)",
+    "explanation": "Atropine works by blocking the Vagus nerve. A transplanted heart has no Vagus nerve connection, so Atropine will not work. Pacing or catecholamines are needed."
+  },
+  {
+    "id": "CLJMNT-026",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A patient has a suspected basilar skull fracture. Which airway adjunct is CONTRAINDICATED?",
+    "options": ["Oropharyngeal Airway (OPA)", "Nasopharyngeal Airway (NPA)", "Supraglottic Airway", "Endotracheal Tube"],
+    "correctAnswer": "Nasopharyngeal Airway (NPA)",
+    "explanation": "An NPA could potentially pass through a fracture in the cribriform plate into the brain."
+  },
+  {
+    "id": "CLJMNT-027",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "You are treating a patient with suspected Addisonian Crisis (Adrenal Insufficiency). Besides fluids, what is a critical consideration?",
+    "options": ["Administering Insulin", "Checking for hyperkalemia and hypoglycemia", "Administering Beta Blockers", "Cooling the patient"],
+    "correctAnswer": "Checking for hyperkalemia and hypoglycemia",
+    "explanation": "Addison's disease leads to low cortisol (hypoglycemia) and low aldosterone (sodium loss/potassium retention). Hyperkalemia and hypoglycemia are major threats."
+  },
+  {
+    "id": "CLJMNT-028",
+    "module": "Clinical Judgement",
+    "category": "Ops",
+    "difficulty": "Medium",
+    "question": "You are legally required to report a case of child abuse. This duty overrides patient confidentiality. This is an example of:",
+    "options": ["Negligence", "Immunity", "Mandatory Reporting", "Res Ipsa Loquitur"],
+    "correctAnswer": "Mandatory Reporting",
+    "explanation": "Paramedics are mandatory reporters for suspected child and elder abuse."
+  },
+  {
+    "id": "CLJMNT-029",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "A patient is hyperventilating. You expect their EtCO2 to be:",
+    "options": ["High (>45)", "Normal (35-45)", "Low (<35)", "Variable"],
+    "correctAnswer": "Low (<35)",
+    "explanation": "Hyperventilation blows off CO2, leading to hypocarbia (low EtCO2)."
+  },
+  {
+    "id": "CLJMNT-030",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Hard",
+    "question": "A burn patient weighs 80kg and has 50% BSA burns. Using the Parkland Formula (4mL), what is the total fluid volume for 24 hours, and how much do you give in the first 8 hours?",
+    "options": ["8,000 mL total; 4,000 mL in first 8 hours", "16,000 mL total; 8,000 mL in first 8 hours", "16,000 mL total; 4,000 mL in first 8 hours", "32,000 mL total; 16,000 mL in first 8 hours"],
+    "correctAnswer": "16,000 mL total; 8,000 mL in first 8 hours",
+    "explanation": "4mL * 80kg * 50 = 16,000 mL total. Half (8,000 mL) is given in the first 8 hours."
+  },
+  {
+    "id": "CLJMNT-031",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient with painless, bright red vaginal bleeding in the third trimester likely has:",
+    "options": ["Abruptio Placentae", "Placenta Previa", "Uterine Rupture", "Spontaneous Abortion"],
+    "correctAnswer": "Placenta Previa",
+    "explanation": "Placenta previa (placenta covering cervix) causes painless bleeding. Abruption is painful."
+  },
+  {
+    "id": "CLJMNT-032",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "A patient is in cardiac arrest. You notice the dialysis fistula in the left arm has a thrill. Where should you establish IV access?",
+    "options": ["Left EJ", "Right arm or IO", "Use the fistula", "Left hand"],
+    "correctAnswer": "Right arm or IO",
+    "explanation": "Never use a dialysis fistula for IV access or BP unless it's a life-or-death last resort and allowed by protocol. Use the other arm or an IO."
+  },
+  {
+    "id": "CLJMNT-033",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A patient with a stab wound to the neck is at high risk for:",
+    "options": ["Air embolism", "Tension pneumothorax", "Esophageal rupture", "All of the above"],
+    "correctAnswer": "All of the above",
+    "explanation": "Neck trauma can involve the jugular (air embolism), the lung apex (pneumo), or the esophagus/trachea."
+  },
+  {
+    "id": "CLJMNT-034",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient presents with 'Moon Face' and 'Buffalo Hump'. These are signs of:",
+    "options": ["Addison's Disease", "Cushing's Syndrome", "Graves' Disease", "Hypothyroidism"],
+    "correctAnswer": "Cushing's Syndrome",
+    "explanation": "These are classic signs of excess cortisol (Cushing's)."
+  },
+  {
+    "id": "CLJMNT-035",
+    "module": "Clinical Judgement",
+    "category": "Ops",
+    "difficulty": "Medium",
+    "question": "You arrive at a scene where a patient is threatening suicide with a knife. Police are not yet on scene. You should:",
+    "options": ["Enter and try to talk him down", "Stage a safe distance away until police secure the scene", "Have your partner distract him while you restrain him", "Yell at him to drop the knife"],
+    "correctAnswer": "Stage a safe distance away until police secure the scene",
+    "explanation": "Safety is paramount. Do not enter an unsecured scene with an armed patient."
+  },
+  {
+    "id": "CLJMNT-036",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Hard",
+    "question": "A patient with organophosphate poisoning has received Atropine and is now tachycardia with dry skin, but still has muscle fasiculations. What drug addresses the muscle symptoms?",
+    "options": ["More Atropine", "Pralidoxime (2-PAM)", "Diazepam", "Succinylcholine"],
+    "correctAnswer": "Pralidoxime (2-PAM)",
+    "explanation": "2-PAM restores acetylcholinesterase, reversing the neuromuscular blockade (nicotinic effects) that Atropine does not treat."
+  },
+  {
+    "id": "CLJMNT-037",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Hard",
+    "question": "A patient with a head injury has a fixed and dilated pupil on the right. This suggests herniation compressing which cranial nerve?",
+    "options": ["CN II (Optic)", "CN III (Oculomotor)", "CN X (Vagus)", "CN VII (Facial)"],
+    "correctAnswer": "CN III (Oculomotor)",
+    "explanation": "The Oculomotor nerve controls pupil constriction. Compression leads to dilation."
+  },
+  {
+    "id": "CLJMNT-038",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "Which of the following is the most reliable method for confirming ET tube placement?",
+    "options": ["Ausculation", "Misting in the tube", "Continuous Waveform Capnography", "Pulse Oximetry"],
+    "correctAnswer": "Continuous Waveform Capnography",
+    "explanation": "Waveform capnography is the gold standard for tube confirmation."
+  },
+  {
+    "id": "CLJMNT-039",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient with a history of alcoholism presents with vomiting bright red blood. You suspect:",
+    "options": ["Peptic Ulcer", "Esophageal Varices", "Diverticulitis", "Colon Cancer"],
+    "correctAnswer": "Esophageal Varices",
+    "explanation": "Portal hypertension from cirrhosis causes varices, which rupture and cause massive hematemesis."
+  },
+  {
+    "id": "CLJMNT-040",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "A burn patient has dry, leathery, white skin that is painless. This is a:",
+    "options": ["Superficial burn", "Partial thickness burn", "Full thickness (3rd degree) burn", "Fourth degree burn"],
+    "correctAnswer": "Full thickness (3rd degree) burn",
+    "explanation": "Full thickness burns destroy nerve endings, making them painless and leathery/white/charred."
+  },
+  {
+    "id": "CLJMNT-041",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "You are managing an airway. The patient has a gag reflex. Which adjunct is contraindicated?",
+    "options": ["Nasopharyngeal Airway (NPA)", "Oropharyngeal Airway (OPA)", "Non-rebreather mask", "Nasal cannula"],
+    "correctAnswer": "Oropharyngeal Airway (OPA)",
+    "explanation": "An OPA will stimulate the gag reflex and cause vomiting/aspiration in a patient with an intact gag."
+  },
+  {
+    "id": "CLJMNT-042",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Medium",
+    "question": "A patient has 'cherry red' skin. This is a late sign of:",
+    "options": ["Cyanide poisoning", "Carbon Monoxide poisoning", "Methemoglobinemia", "Heat stroke"],
+    "correctAnswer": "Carbon Monoxide poisoning",
+    "explanation": "Cherry red skin is a classic, though late/rare, sign of CO poisoning."
+  },
+  {
+    "id": "CLJMNT-043",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Medium",
+    "question": "In a multisystem trauma patient, which intervention should be done en route rather than on scene?",
+    "options": ["Airway management", "Control of major bleeding", "IV access", "Spinal immobilization"],
+    "correctAnswer": "IV access",
+    "explanation": "IVs should generally be started en route to minimize scene time (Platinum 10), whereas ABCs and hemorrhage control are immediate life threats."
+  },
+  {
+    "id": "CLJMNT-044",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "A patient in cardiac arrest has been intubated. CPR is in progress. The EtCO2 reading suddenly jumps from 15 to 40. What does this likely indicate?",
+    "options": ["The tube has dislodged", "Return of Spontaneous Circulation (ROSC)", "The patient is hyperventilating", "Equipment failure"],
+    "correctAnswer": "Return of Spontaneous Circulation (ROSC)",
+    "explanation": "A sudden rise in EtCO2 during CPR is a strong indicator of ROSC (due to sudden perfusion of the lungs bringing CO2)."
+  },
+  {
+    "id": "CLJMNT-045",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Hard",
+    "question": "A patient with fever and a stiff neck curls their legs when you flex their neck. This is a positive:",
+    "options": ["Kernig's Sign", "Brudzinski's Sign", "Babinski Reflex", "Cushing's Reflex"],
+    "correctAnswer": "Brudzinski's Sign",
+    "explanation": "This is Brudzinski's sign, indicative of meningeal irritation."
+  },
+  {
+    "id": "CLJMNT-046",
+    "module": "Clinical Judgement",
+    "category": "Ops",
+    "difficulty": "Medium",
+    "question": "You are driving an ambulance code 3. You approach a red light. You must:",
+    "options": ["Slow down and check, but proceed without stopping", "Come to a complete stop and proceed when safe", "Drive through if your siren is on", "Follow the police escort"],
+    "correctAnswer": "Come to a complete stop and proceed when safe",
+    "explanation": "Most laws and safe driving practices require a complete stop at red lights/stop signs before proceeding, even when driving emergency."
+  },
+  {
+    "id": "CLJMNT-047",
+    "module": "Clinical Judgement",
+    "category": "Trauma",
+    "difficulty": "Hard",
+    "question": "A patient has an evisceration. You should:",
+    "options": ["Push the organs back in", "Cover with dry sterile dressing", "Cover with moist sterile dressing and an occlusive layer", "Apply ice"],
+    "correctAnswer": "Cover with moist sterile dressing and an occlusive layer",
+    "explanation": "Keep organs moist and warm. Do not try to replace them."
+  },
+  {
+    "id": "CLJMNT-048",
+    "module": "Clinical Judgement",
+    "category": "Cardiology",
+    "difficulty": "Medium",
+    "question": "Electrical alternans on an ECG is a sign of:",
+    "options": ["Pericardial Tamponade", "Hyperkalemia", "Hypothermia", "Left Ventricular Hypertrophy"],
+    "correctAnswer": "Pericardial Tamponade",
+    "explanation": "The heart swinging in fluid (tamponade) causes the QRS amplitude to alternate."
+  },
+  {
+    "id": "CLJMNT-049",
+    "module": "Clinical Judgement",
+    "category": "Medical",
+    "difficulty": "Hard",
+    "question": "A patient with Status Epilepticus has been seizing for 15 minutes. What is a major metabolic concern?",
+    "options": ["Respiratory Alkalosis", "Hypoglycemia and Acidosis", "Hyperglycemia", "Hypothermia"],
+    "correctAnswer": "Hypoglycemia and Acidosis",
+    "explanation": "Prolonged seizures consume massive amounts of glucose and oxygen, and produce lactic acid."
+  },
+  {
+    "id": "CLJMNT-050",
+    "module": "Clinical Judgement",
+    "category": "Airway",
+    "difficulty": "Medium",
+    "question": "You are preparing to intubate. What is the purpose of 'pre-oxygenation' or nitrogen washout?",
+    "options": ["To sedate the patient", "To replace nitrogen in the functional residual capacity with oxygen", "To prevent aspiration", "To decrease intracranial pressure"],
+    "correctAnswer": "To replace nitrogen in the functional residual capacity with oxygen",
+    "explanation": "Pre-oxygenation creates an oxygen reservoir in the lungs, extending the safe apnea time during intubation."
+  }
+];
+
+// --- MODULE DEFINITIONS ---
+const MODULES = [
+  { id: 'Clinical Judgment', name: 'Clinical Judgment', icon: Layers, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
+  { id: 'Anatomy', name: 'Anatomy Pearls', icon: Brain, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+  { id: 'Airway', name: 'Airway', icon: Wind, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+  { id: 'Cardiology', name: 'Cardiology', icon: Heart, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
+  { id: 'Trauma', name: 'Trauma', icon: Zap, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+  { id: 'Medical', name: 'Medical', icon: Stethoscope, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200' },
+  { id: 'Ops', name: 'Operations', icon: Ambulance, color: 'text-slate-600', bg: 'bg-slate-50', border: 'border-slate-200' },
+];
+
+// --- COMPONENTS ---
+
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden ${className}`}>
+    {children}
+  </div>
+);
+
+const Button = ({ children, onClick, variant = "primary", className = "", disabled = false }) => {
+  const baseStyle = "px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2";
+  const variants = {
+    primary: "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 shadow-md",
+    secondary: "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-sm",
+    outline: "border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600",
+    success: "bg-green-600 text-white",
+    danger: "bg-red-500 text-white",
+    ghost: "bg-transparent text-slate-600 hover:bg-slate-100"
+  };
+
+  return (
+    <button 
+      onClick={onClick} 
+      disabled={disabled}
+      className={`${baseStyle} ${variants[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
+
+// --- APP LOGIC ---
+
+export default function ParamedicApp() {
+  const [gameState, setGameState] = useState('home'); 
+  const [currentModule, setCurrentModule] = useState(null); 
+  const [moduleQuestions, setModuleQuestions] = useState([]); 
+
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [abilityLevel, setAbilityLevel] = useState(0); 
+  const [history, setHistory] = useState([]); 
+  const [currentQuestion, setCurrentQuestion] = useState(null);
+  
+  // State for multiple choice
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  const [isAnswered, setIsAnswered] = useState(false);
+  const [usedQuestionIds, setUsedQuestionIds] = useState(new Set());
+
+  // --- ADAPTIVE ALGORITHM (RANDOMIZED) ---
+  const getNextQuestion = (currentAbility, usedIds, pool) => {
+    let targetDifficulty = 'Medium';
+    if (currentAbility > 1) targetDifficulty = 'Hard';
+    if (currentAbility < -1) targetDifficulty = 'Easy';
+
+    // 1. Try to find unused question of target difficulty in current pool
+    let candidates = pool.filter(q => !usedIds.has(q.id) && q.difficulty === targetDifficulty);
+    
+    // 2. If none, try Medium (as neutral ground)
+    if (candidates.length === 0) {
+      candidates = pool.filter(q => !usedIds.has(q.id) && q.difficulty === 'Medium');
+    }
+
+    // 3. If none, take anything available
+    if (candidates.length === 0) {
+      candidates = pool.filter(q => !usedIds.has(q.id));
+    }
+
+    if (candidates.length === 0) return null; // No questions left
+
+    // Randomize selection
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    const selectedQ = candidates[randomIndex];
+    
+    // Shuffle options for the selected question to prevent position memorization
+    if (selectedQ && selectedQ.options) {
+      const shuffledOptions = [...selectedQ.options];
+      for (let i = shuffledOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+      }
+      return { ...selectedQ, options: shuffledOptions };
+    }
+    
+    return selectedQ;
+  };
+
+  const startTest = (moduleId) => {
+    let pool;
+    if (moduleId === 'Clinical Judgment') {
+       // Filter for specific Clinical Judgment questions OR Hard questions from any module
+       pool = QUESTION_BANK.filter(q => q.module === 'Clinical Judgment' || q.difficulty === 'Hard');
+    } else {
+       pool = QUESTION_BANK.filter(q => q.module === moduleId);
+    }
+    
+    // Safety check for empty modules
+    if (pool.length === 0) {
+      alert("No questions available for this module yet!");
+      return;
+    }
+
+    setModuleQuestions(pool);
+    setCurrentModule(moduleId);
+    setScore(0);
+    setAbilityLevel(0);
+    setHistory([]);
+    setUsedQuestionIds(new Set());
+    setGameState('test');
+    
+    // Initial Question selection
+    let candidates = pool.filter(q => q.difficulty === 'Medium');
+    if (candidates.length === 0) candidates = pool;
+
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    const firstQ = candidates[randomIndex];
+    
+    // Shuffle options for first question
+    if (firstQ && firstQ.options) {
+        const shuffledOptions = [...firstQ.options];
+        for (let i = shuffledOptions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+        }
+        setCurrentQuestion({ ...firstQ, options: shuffledOptions });
+    } else {
+        setCurrentQuestion(firstQ);
+    }
+    
+    setUsedQuestionIds(new Set([firstQ.id]));
+    setCurrentQIndex(1);
+    setIsAnswered(false);
+    setSelectedOption(null);
+  };
+
+  const handleAnswer = (optionText) => {
+    if (isAnswered) return;
+    
+    setSelectedOption(optionText);
+    setIsAnswered(true);
+    
+    const isCorrect = optionText === currentQuestion.correctAnswer;
+    
+    if (isCorrect) {
+      setScore(s => s + 1);
+      setAbilityLevel(l => l + 1);
+    } else {
+      setAbilityLevel(l => l - 1);
+    }
+
+    setHistory(prev => [...prev, {
+      question: currentQuestion,
+      userAnswer: optionText,
+      isCorrect,
+      difficulty: currentQuestion.difficulty
+    }]);
+  };
+
+  const nextQuestion = () => {
+    if (currentQIndex >= 10 || currentQIndex >= moduleQuestions.length) {
+      setGameState('results');
+      return;
+    }
+
+    const nextQ = getNextQuestion(abilityLevel, usedQuestionIds, moduleQuestions);
+    
+    if (!nextQ) {
+      setGameState('results');
+      return;
+    }
+
+    setCurrentQuestion(nextQ);
+    setUsedQuestionIds(prev => new Set(prev).add(nextQ.id));
+    setCurrentQIndex(i => i + 1);
+    setIsAnswered(false);
+    setSelectedOption(null);
+  };
+
+  const goHome = () => {
+    setGameState('home');
+    setCurrentModule(null);
+  };
+
+  // --- SCREENS ---
+
+  const HomeScreen = () => (
+    <div className="max-w-4xl mx-auto p-4 md:p-8">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <div className="flex justify-center mb-4">
+          <div className="bg-blue-600 text-white p-3 rounded-2xl shadow-lg">
+            <Activity size={40} />
+          </div>
+        </div>
+        <h1 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">Paramedic NREMT Prep</h1>
+        <p className="text-slate-500 text-lg">Select a core competency to begin your adaptive exam.</p>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {MODULES.map((mod) => {
+          const Icon = mod.icon;
+          return (
+            <button
+              key={mod.id}
+              onClick={() => startTest(mod.id)}
+              className="group relative bg-white p-6 rounded-2xl shadow-md border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className={`absolute top-0 right-0 w-24 h-24 -mr-6 -mt-6 rounded-full opacity-10 ${mod.bg.replace('bg-', 'bg-current ')} ${mod.color}`}></div>
+              
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${mod.bg} ${mod.color}`}>
+                <Icon size={24} />
+              </div>
+              
+              <h3 className="text-xl font-bold text-slate-800 mb-1">{mod.name}</h3>
+              <p className="text-sm text-slate-500 mb-4">{mod.id === 'Clinical Judgment' ? 'Advanced Scenarios' : 'Adaptive Test Series'}</p>
+              
+              <div className="flex items-center text-sm font-medium text-slate-400 group-hover:text-blue-600 transition-colors">
+                Start Exam <ChevronRight size={16} className="ml-1" />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const TestScreen = () => {
+    if (!currentQuestion) return <div>Loading...</div>;
+
+    const mod = MODULES.find(m => m.id === currentModule);
+    const difficultyColor = 
+      currentQuestion.difficulty === 'Easy' ? 'text-green-600 bg-green-50 border-green-200' :
+      currentQuestion.difficulty === 'Medium' ? 'text-yellow-600 bg-yellow-50 border-yellow-200' :
+      'text-red-600 bg-red-50 border-red-200';
+
+    return (
+      <div className="max-w-3xl mx-auto p-4 min-h-[600px] flex flex-col">
+        {/* Nav Header */}
+        <div className="flex items-center justify-between mb-8">
+          <button onClick={goHome} className="flex items-center text-slate-500 hover:text-slate-800 transition-colors">
+            <Home size={18} className="mr-2" /> Dashboard
+          </button>
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold ${mod?.bg} ${mod?.color}`}>
+            {mod && <mod.icon size={16} />}
+            {mod?.name} Exam
+          </div>
+        </div>
+
+        {/* Question Header */}
+        <div className="flex justify-between items-end mb-4">
+          <span className="text-slate-400 text-sm font-medium tracking-wider">QUESTION {currentQIndex} / {Math.min(10, moduleQuestions.length)}</span>
+          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${difficultyColor}`}>
+            {currentQuestion.difficulty}
+          </span>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-slate-200 h-2 rounded-full mb-6">
+          <div 
+            className="bg-slate-800 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${(currentQIndex / Math.min(10, moduleQuestions.length)) * 100}%` }}
+          ></div>
+        </div>
+
+        {/* Card */}
+        <Card className="flex-grow mb-6 animate-in fade-in zoom-in duration-300">
+          <div className="p-6 md:p-8">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-8 leading-relaxed">
+              {currentQuestion.question}
+            </h2>
+
+            <div className="space-y-3">
+              {currentQuestion.options.map((option, idx) => {
+                let btnStyle = "w-full text-left p-4 rounded-lg border-2 border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition-all font-medium text-slate-700 relative overflow-hidden";
+                
+                if (isAnswered) {
+                  if (option === currentQuestion.correctAnswer) {
+                    btnStyle = "w-full text-left p-4 rounded-lg border-2 border-green-500 bg-green-50 text-green-800 font-bold shadow-sm";
+                  } else if (option === selectedOption) {
+                    btnStyle = "w-full text-left p-4 rounded-lg border-2 border-red-500 bg-red-50 text-red-800 opacity-70";
+                  } else {
+                    btnStyle = "w-full text-left p-4 rounded-lg border-2 border-slate-100 opacity-40 grayscale";
+                  }
+                }
+
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => handleAnswer(option)}
+                    disabled={isAnswered}
+                    className={btnStyle}
+                  >
+                    <div className="flex items-center relative z-10">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 border text-sm transition-colors ${isAnswered && option === currentQuestion.correctAnswer ? 'border-green-600 bg-green-600 text-white' : 'border-slate-300 text-slate-500 bg-white'}`}>
+                        {String.fromCharCode(65 + idx)}
+                      </div>
+                      {option}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Rationale Section */}
+          {isAnswered && (
+            <div className="bg-slate-50 border-t border-slate-200 p-6">
+              <div className="flex gap-4">
+                 <div className="mt-1">
+                   {selectedOption === currentQuestion.correctAnswer ? (
+                     <CheckCircle className="text-green-500" size={24} />
+                   ) : (
+                     <XCircle className="text-red-500" size={24} />
+                   )}
+                 </div>
+                 <div>
+                   <h4 className="font-bold text-slate-900 mb-1">
+                     {selectedOption === currentQuestion.correctAnswer ? "Correct" : "Incorrect"}
+                   </h4>
+                   <p className="text-slate-600 leading-relaxed text-sm md:text-base">
+                    <span className="font-semibold text-slate-700">Rationale: </span>
+                    {currentQuestion.explanation}
+                   </p>
+                 </div>
+              </div>
+              <div className="mt-6 flex justify-end">
+                <Button onClick={nextQuestion}>
+                  {currentQIndex >= Math.min(10, moduleQuestions.length) ? "View Results" : "Next Question"}
+                  <ChevronRight size={18} />
+                </Button>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+    );
+  };
+
+  const ResultsScreen = () => {
+    const percentage = Math.round((score / history.length) * 100) || 0;
+    const isPassing = percentage >= 70;
+    const mod = MODULES.find(m => m.id === currentModule);
+
+    // Categorize mistakes
+    const categoryStats = history.reduce((acc, curr) => {
+      if (!acc[curr.question.category]) {
+        acc[curr.question.category] = { total: 0, correct: 0 };
+      }
+      acc[curr.question.category].total += 1;
+      if (curr.isCorrect) acc[curr.question.category].correct += 1;
+      return acc;
+    }, {});
+
+    return (
+      <div className="max-w-2xl mx-auto p-6 text-center pt-12">
+        <Card className="p-8 md:p-12 mb-8 relative overflow-visible">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+          
+          <div className="mb-6 flex justify-center">
+            {isPassing ? (
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center animate-bounce-slow">
+                <CheckCircle size={48} className="text-green-600" />
+              </div>
+            ) : (
+              <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle size={48} className="text-red-600" />
+              </div>
+            )}
+          </div>
+          
+          <h2 className="text-3xl font-bold text-slate-800 mb-2">
+            {isPassing ? "Module Passed" : "Needs Review"}
+          </h2>
+          <p className="text-slate-500 mb-8 text-lg">
+            You scored <span className="font-bold text-slate-800">{percentage}%</span> on the <span className={`font-semibold ${mod?.color}`}>{mod?.name}</span> module.
+          </p>
+
+          <div className="grid gap-4 text-left bg-slate-50 p-6 rounded-xl mb-8">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-slate-400 border-b border-slate-200 pb-2 flex items-center gap-2">
+              <BarChart2 size={14} /> Topic Breakdown
+            </h3>
+            {Object.entries(categoryStats).map(([cat, stats]) => (
+              <div key={cat} className="flex items-center justify-between text-sm">
+                <span className="font-medium text-slate-700">{cat}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${stats.correct === stats.total ? 'bg-green-500' : 'bg-blue-500'}`} 
+                      style={{ width: `${(stats.correct / stats.total) * 100}%` }}
+                    ></div>
+                  </div>
+                  <span className="font-mono text-slate-500 w-12 text-right">
+                    {Math.round((stats.correct/stats.total)*100)}%
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-4 justify-center">
+            <Button onClick={goHome} variant="secondary">
+              <Home size={18} /> Dashboard
+            </Button>
+            <Button onClick={() => startTest(currentModule)}>
+              <RefreshCw size={18} /> Retry Module
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
+      {gameState === 'home' && <HomeScreen />}
+      {gameState === 'test' && <TestScreen />}
+      {gameState === 'results' && <ResultsScreen />}
+    </div>
+  );
+}
